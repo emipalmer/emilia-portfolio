@@ -28,33 +28,37 @@
   <!-- Screen-reader + keyboard shortcut past the decorative nav. -->
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <!-- ================= Background art =================
-       Purely decorative: sage panel with the lily bleeding off the top-right,
-       exactly as positioned in the Canva mockup. -->
+  <!-- The one chevron every control on the site uses; rotated in CSS. -->
+  <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+    <symbol id="chevron" viewBox="0 0 22 22"><path d="M8.25 5.5 13.75 11 8.25 16.5"/></symbol>
+  </svg>
+
+  <!-- ================= Backdrop ================= -->
   <div class="backdrop" aria-hidden="true">
     <div class="backdrop__panel"></div>
-    <img class="backdrop__lily" src="assets/lily.png" alt="">
   </div>
 
   <!-- ================= Top navigation ================= -->
   <header class="topbar">
-    <nav class="pill" aria-label="Primary">
+    <!-- Every destination is here, so the site stays usable with the phone put away. -->
+    <nav class="pill" id="primaryNav" aria-label="Primary">
       <ul class="pill__list">
         <li><a class="pill__link" href="#/home">home</a></li>
         <li><a class="pill__link" href="#/about">about</a></li>
         <li><a class="pill__link" href="#/projects">projects</a></li>
-        <!-- On desktop, skills is reached through the phone. When the phone is
-             hidden on small screens, this link takes over so it stays reachable. -->
-        <li class="pill__item--compact"><a class="pill__link" href="#/skills">skills</a></li>
+        <li><a class="pill__link" href="#/experience">experience</a></li>
+        <li><a class="pill__link" href="#/skills">skills</a></li>
         <li><a class="pill__link" href="#/contact">contact</a></li>
       </ul>
       <!-- Slides under the active link. Positioned in JS so it can animate. -->
       <span class="pill__marker" aria-hidden="true"></span>
     </nav>
 
-    <!-- The small green button from the mockup.
-         TODO: drop your resume PDF in /assets and point this at it. -->
-    <a class="resume-btn" href="assets/resume.pdf" target="_blank" rel="noopener">resume</a>
+    <!-- Slides the nav up past the top edge (desktop only). -->
+    <button class="nav-toggle" type="button" id="navToggle"
+            aria-controls="primaryNav" aria-expanded="true" aria-label="Hide navigation">
+      <svg class="chevron chevron--up" aria-hidden="true"><use href="#chevron"/></svg>
+    </button>
   </header>
 
   <!-- ================= Page body =================
@@ -77,7 +81,7 @@
       </button>
 
       <button class="chev chev--prev" type="button" aria-label="Previous phone screen">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+        <svg class="chevron chevron--left" aria-hidden="true"><use href="#chevron"/></svg>
       </button>
 
       <div class="phone" role="group" aria-label="Site navigator">
@@ -98,7 +102,7 @@
       </div>
 
       <button class="chev chev--next" type="button" aria-label="Next phone screen">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+        <svg class="chevron" aria-hidden="true"><use href="#chevron"/></svg>
       </button>
 
       <!-- Dots show which phone screen you're on. -->

@@ -25,12 +25,18 @@
     next:    document.querySelector('.chev--next'),
     area:    document.getElementById('phoneArea'),
     hide:    document.getElementById('phoneHide'),
-    tab:     document.getElementById('phoneTab')
+    tab:     document.getElementById('phoneTab'),
+    nav:     document.getElementById('primaryNav'),
+    navToggle: document.getElementById('navToggle')
   };
 
   let screenIndex = 0;   // which phone home screen is showing
   let currentRoute = ''; // the active page key
   let phoneAway = false; // whether the phone is slid off to the side
+  let navAway = false;   // whether the nav is slid up past the top edge
+
+  // The nav can only be put away on desktop; below this it is the only navigation.
+  const desktop = window.matchMedia('(min-width: 901px)');
 
   /* --- Small helpers ----------------------------------------------------- */
 
@@ -171,9 +177,10 @@
       const box = active.getBoundingClientRect();
       els.marker.style.left = `${box.left - pill.left}px`;
       els.marker.style.width = `${box.width}px`;
+      els.marker.style.top = `${box.top - pill.top}px`;
+      els.marker.style.height = `${box.height}px`;
       els.marker.classList.add('is-ready');
     } else {
-      // Routes like #/skills have no pill entry — hide the marker.
       els.marker.classList.remove('is-ready');
     }
 
@@ -314,6 +321,18 @@
     if (moveFocus) (away ? els.tab : els.hide).focus();
   }
 
+  /**
+   * Slide the nav up past the top edge (or bring it back). Desktop only:
+   * the phone still reaches every page while the nav is away.
+   */
+  function setNavAway(away) {
+    navAway = away;
+    document.body.classList.toggle('nav-away', away);
+    els.nav.inert = away;
+    els.navToggle.setAttribute('aria-expanded', String(!away));
+    els.navToggle.setAttribute('aria-label', away ? 'Show navigation' : 'Hide navigation');
+  }
+
   /* --- Wiring ------------------------------------------------------------ */
 
   function handleRouteChange() {
@@ -341,6 +360,10 @@
 
     els.prev.addEventListener('click', () => goToScreen(screenIndex - 1));
     els.next.addEventListener('click', () => goToScreen(screenIndex + 1));
+
+    els.navToggle.addEventListener('click', () => setNavAway(!navAway));
+    // Crossing below the breakpoint must never leave the only nav hidden.
+    desktop.addEventListener('change', e => { if (!e.matches && navAway) setNavAway(false); });
 
     els.hide.addEventListener('click', () => setPhoneAway(true, true));
     els.tab.addEventListener('click', () => setPhoneAway(false, true));
