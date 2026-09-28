@@ -45,9 +45,8 @@ CSS custom property names match the Figma variable names exactly.
 load-bearing in every headline).
 
 Headline 84 on home and on about's arrival state; 46 elsewhere; 40 once about has
-scrolled. Body 17, small 15, phone tile labels 9. **Nothing renders below 16px
-during the about scroll.** That floor is deliberate: text dimmed or shrunk past
-legibility is hidden text with extra steps.
+scrolled. Body 17, small 15, phone tile labels 9. **Nothing shrinks below 16px
+during the about scroll.** Text leaves by fading, not by shrinking past legibility.
 
 ---
 
@@ -81,8 +80,15 @@ Slugs: `esdrs`, `dementia-mr`, `revibe`, `gemini-add-on`, `worklog`, `this-site`
 
 Detail **replaces** the list rather than expanding in place. Expanding pushed the
 last project below the fold on a page that does not scroll, and each project gets
-a real linkable URL this way. The phone stays on the projects tile throughout —
-detail is a page-column change, not a phone change.
+a real linkable URL this way.
+
+**ESDRS and ReVibe show their designs in the phone.** On those two detail pages
+the phone screen is replaced by that project's images at 1:1 — static images,
+not a working prototype. While they are showing, the chevrons page through the
+project's images instead of the home screens, and the home indicator bar at the
+bottom (redrawn on top of the image) returns the phone to its home screens. The
+page column stays on the detail either way; `← projects` is the page's exit. The
+other four detail pages leave the phone alone.
 
 An unknown hash gets a 404 page (`hmm, nothing here.` plus two ways back), not a
 silent fallback to home. A silent fallback reads as the link being broken.
@@ -110,14 +116,21 @@ change, and on a ~6s timer otherwise, 400ms crossfade. Headshot first so the
 landing page is still her. Under `prefers-reduced-motion`: timer off, no
 crossfade, changes only on page change.
 
-**About scroll.** Text starts oversized and scales down as a photo collage builds
-around it. Nothing changes position — only size, opacity, and what exists on top.
-Every word is in the markup from first paint; scroll changes emphasis, never
-content. Receded text holds at 40% opacity, never lower.
+**About scroll.** Three steps, matching the `✓ about / 1–3` frames on Scroll
+reveal. Text starts oversized and scales down while a photo collage builds over
+the page; by the last step the collage owns the page and the text has faded out
+completely.
 
-The collage keeps to two zones — right of the text column and below it — so no
-photo lands on a word. Photos that would overlap the copy arrive only after the
-copy has gone.
+| Step | Headline | Body | Text opacity | Collage |
+| --- | --- | --- | --- | --- |
+| 1 — arrival | 84 | 24 | 100% | none |
+| 2 — collage arrives | 58 | 19 | 40% | first photos, below the text |
+| 3 — collage owns it | 40 | 16 | 0% | full, overlapping the text column |
+
+Nothing changes position — only size, opacity, and what sits on top. Every word
+is in the markup from first paint and stays there at 0%, so screen readers,
+JS-off and `prefers-reduced-motion` visitors get the whole page. Scrolling back
+up brings the text straight back.
 
 **Projects scroll.** Six projects do not fit a fixed-height page. A clipping
 viewport wraps **the card list alone**: 660×600 at x90/y150 on desktop, 346×610 on
@@ -219,11 +232,20 @@ link, not just the title.
 
 ## 9. Content
 
-Six projects: ESDRS, Dementia Care MR Simulation, ReVibe, Gemini AI Document
-Add-On, WorkLog, This site.
+Six projects: esdrs, Dementia Care MR Simulation, ReVibe, Gemini AI Document
+Add-On, WorkLog, This site. **esdrs is always lowercase** in copy. Roles are
+fixed: esdrs is "design & product lead", Dementia Care MR is "software developer".
+
+**Order: worklog, esdrs, dementia mr, gemini add-on, this site, revibe** —
+featured projects first, design-only last. The card list and the phone's
+projects screen use the same order, so the two never disagree.
+
+Contact has no intro line; the `say hi.` headline is enough. The this-site detail
+body is intentionally just "Designed in Figma!".
 
 **ReVibe is design only** and says so on its detail page. Being explicit beats an
-interviewer assuming otherwise and finding out.
+interviewer assuming otherwise and finding out. Its tags are UI/UX and Figma only —
+a framework tag would imply it was built.
 
 Experience holds five roles in two groups, work then leadership. Numbers matter —
 80% policy review reduction, 500+ students, 6+ city groups.

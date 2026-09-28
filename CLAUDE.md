@@ -8,7 +8,9 @@ It is designed, in detail, before being built — the Figma file is the spec, th
 repo is the implementation.
 
 Figma: https://www.figma.com/design/ahL2NEw9Qre9N7wcH8Ng3o
-Start at the page **Handoff — read me first**.
+Start at the page **Handoff — read me first**. Behaviour and decisions are in
+`docs/design.md`. When the two disagree, Figma wins on pixels and
+`docs/design.md` wins on behaviour.
 
 ## What it is
 
@@ -66,4 +68,6 @@ assets/             images, resume.pdf
 
 - What replaces the empty top-right corner (a style/theme switcher was the idea).
 - Whether the sage panel earns its place now that the lily is gone.
-- Ordering of the six projects — currently chronological.
+
+## Notes
+Be concise and write clean code. Make sure to update documentation accordingly.
