@@ -173,11 +173,12 @@
     });
 
     if (active) {
-      const pill = active.closest('.pill').getBoundingClientRect();
+      // The marker is positioned inside the pill's border, so measure from there.
+      const pill = els.nav.getBoundingClientRect();
       const box = active.getBoundingClientRect();
-      els.marker.style.left = `${box.left - pill.left}px`;
+      els.marker.style.left = `${box.left - pill.left - els.nav.clientLeft}px`;
       els.marker.style.width = `${box.width}px`;
-      els.marker.style.top = `${box.top - pill.top}px`;
+      els.marker.style.top = `${box.top - pill.top - els.nav.clientTop}px`;
       els.marker.style.height = `${box.height}px`;
       els.marker.classList.add('is-ready');
     } else {
