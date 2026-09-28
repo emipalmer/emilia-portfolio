@@ -41,6 +41,15 @@ CSS custom property names match the Figma variable names exactly.
 | `--pink` / `--peach` | `#CF8D87` / `#FECFBD` | links-screen banner only |
 | `--error` | `#A14A44` | form errors — the pink darkened until it warns |
 
+**Device chrome** — `--white`, `--island`, `--rail-1…4` — are code-only tokens for
+colours drawn once inside the Figma iPhone component (tile icons, dynamic island,
+brushed rail). They are not Figma variables, but they still live in `:root`, so
+no component carries raw hex.
+
+**Type tokens:** `--fs-hero` 84, `--fs-title` 46, `--fs-lead` 24, `--fs-medium` 19,
+`--fs-body` 17, `--fs-small` 15. The two headline sizes clamp down toward 390;
+the rest are fixed.
+
 **Type** is Figtree throughout (Google Fonts, has a true italic — the italic is
 load-bearing in every headline).
 

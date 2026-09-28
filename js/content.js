@@ -62,6 +62,13 @@ const CONTENT = {
       ]
     },
 
+    // Roles arrive with the experience page (PR 4); the title lets the nav resolve now.
+    experience: {
+      stamp: 'experience',
+      title: { lead: 'where i’ve ', em: 'worked', tail: '.' },
+      body: []
+    },
+
     skills: {
       stamp: 'skills',
       title: { lead: 'what i ', em: 'work with', tail: '.' },
