@@ -24,7 +24,7 @@ css/styles.css      all styling; design tokens at the top
 js/icons.js         Lucide icon paths, keyed by name
 js/content.js       ALL copy, projects, links — edit here, not in app.js
 js/app.js           routing, rendering, phone behaviour
-assets/             images, resume.pdf
+assets/             resume.pdf; photos/ holds the site photos
 ```
 
 ## How to work here

@@ -262,9 +262,9 @@ Experience holds five roles in two groups, work then leadership. Numbers matter 
 Contact: `mia.annp@gmail.com`, `github.com/emipalmer`,
 `linkedin.com/in/emiliaapalmer`.
 
-Still missing: one ESDRS screen for the desktop demo and one for mobile detail, a
-WorkLog screenshot, 15 mobile collage photos, `assets/resume.pdf`, a favicon and a
-share-preview image.
+Photos live in `assets/photos/`, exported from the Figma originals at 1200px on
+the long edge. Still missing: esdrs and ReVibe screens for the phone demos, a
+WorkLog screenshot, a favicon and a share-preview image.
 
 ---
 
