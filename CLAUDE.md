@@ -19,7 +19,7 @@ Pages. The distinguishing idea: a phone drawn on the right of every desktop page
 is the navigation — its app tiles are the site's pages.
 
 ```
-index.html          shell: nav, backdrop, phone
+index.html          shell: nav, phone
 css/styles.css      all styling; design tokens at the top
 js/icons.js         Lucide icon paths, keyed by name
 js/content.js       ALL copy, projects, links — edit here, not in app.js
@@ -62,12 +62,11 @@ assets/             resume.pdf; photos/ holds the site photos
   prefixed `v2 ·`.
 - Panel-follows-nav, and panel-survives-scroll. Both only matter with panels.
 - The resume button in the top-right corner. Resume is a chip on the home page.
-- The lily background art. The sage panel is the only backdrop element.
+- The lily background art and the sage backdrop panel. The page is plain mint.
 
 ## Still undecided
 
 - What replaces the empty top-right corner (a style/theme switcher was the idea).
-- Whether the sage panel earns its place now that the lily is gone.
 
 ## Notes
 Be concise and write clean code. Make sure to update documentation accordingly.

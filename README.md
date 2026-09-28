@@ -18,7 +18,7 @@ python3 -m http.server 8000
 ## Structure
 
 ```
-index.html          shell: nav, backdrop, phone
+index.html          shell: nav, phone
 css/styles.css      all styling; design tokens at the top
 js/icons.js         Lucide icon paths, keyed by name
 js/content.js       all copy, projects and links
