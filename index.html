@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>emilia — computer science @ penn state</title>
+  <meta name="description" content="Portfolio of Emilia, a computer science student at Penn State and aspiring software developer.">
+
+  <!-- Open Graph: controls the preview card when the link is shared.
+       TODO: replace the og:url + og:image once the site has a real domain. -->
+  <meta property="og:title" content="hi, i'm emilia.">
+  <meta property="og:description" content="Computer science @ Penn State. Aspiring software developer.">
+  <meta property="og:type" content="website">
+
+  <!-- Figtree: geometric grotesque with a true italic, matching the mockup's headline. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+
+  <!-- Inline favicon: a mint square with a forest-green 'e'. No extra request. -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23F4FFF0'/><text x='16' y='23' font-family='Georgia,serif' font-style='italic' font-size='20' text-anchor='middle' fill='%23163808'>e</text></svg>">
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <!-- Screen-reader + keyboard shortcut past the decorative nav. -->
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ================= Background art =================
+       Purely decorative: sage panel with the lily bleeding off the top-right,
+       exactly as positioned in the Canva mockup. -->
+  <div class="backdrop" aria-hidden="true">
+    <div class="backdrop__panel"></div>
+    <img class="backdrop__lily" src="assets/lily.png" alt="">
+  </div>
+
+  <!-- ================= Top navigation ================= -->
+  <header class="topbar">
+    <nav class="pill" aria-label="Primary">
+      <ul class="pill__list">
+        <li><a class="pill__link" href="#/home">home</a></li>
+        <li><a class="pill__link" href="#/about">about</a></li>
+        <li><a class="pill__link" href="#/projects">projects</a></li>
+        <!-- On desktop, skills is reached through the phone. When the phone is
+             hidden on small screens, this link takes over so it stays reachable. -->
+        <li class="pill__item--compact"><a class="pill__link" href="#/skills">skills</a></li>
+        <li><a class="pill__link" href="#/contact">contact</a></li>
+      </ul>
+      <!-- Slides under the active link. Positioned in JS so it can animate. -->
+      <span class="pill__marker" aria-hidden="true"></span>
+    </nav>
+
+    <!-- The small green button from the mockup.
+         TODO: drop your resume PDF in /assets and point this at it. -->
+    <a class="resume-btn" href="assets/resume.pdf" target="_blank" rel="noopener">resume</a>
+  </header>
+
+  <!-- ================= Page body =================
+       Two columns on desktop: written content left, phone navigator right. -->
+  <div class="stage">
+    <main class="content" id="main">
+      <!-- Filled by js/app.js on every route change. -->
+      <article class="page" id="page" tabindex="-1"></article>
+    </main>
+
+    <!-- ================= Phone navigator =================
+         The primary way to move around the site on desktop.
+         Hidden on small screens, where the pill nav takes over. -->
+    <div class="phone-area" id="phoneArea">
+      <!-- Slides the phone off the right edge, widening the content column. -->
+      <button class="phone-hide" type="button" id="phoneHide"
+              aria-controls="phoneArea" aria-expanded="true">
+        <span aria-hidden="true">&rsaquo;&rsaquo;</span>
+        <span class="sr-only">Put the phone away</span>
+      </button>
+
+      <button class="chev chev--prev" type="button" aria-label="Previous phone screen">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+      </button>
+
+      <div class="phone" role="group" aria-label="Site navigator">
+        <div class="phone__bezel">
+          <div class="phone__notch" aria-hidden="true"></div>
+          <div class="phone__screen">
+            <!-- Screens are rendered by JS; the track slides horizontally. -->
+            <div class="screens" id="screens"></div>
+
+            <!-- Dock: always-present shortcut back to home. -->
+            <div class="dock">
+              <button class="tile tile--dock" type="button" data-route="#/home" aria-label="Go to home">
+                <span class="tile__glyph" aria-hidden="true">⌂</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="chev chev--next" type="button" aria-label="Next phone screen">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+      </button>
+
+      <!-- Dots show which phone screen you're on. -->
+      <div class="dots" id="dots" role="tablist" aria-label="Phone screens"></div>
+
+      <p class="hint">
+        use this to navigate :)
+        <svg class="hint__arrow" viewBox="0 0 60 30" aria-hidden="true">
+          <path d="M2 4c14 22 38 24 54 18" />
+          <path d="M48 16l8 6-9 3" />
+        </svg>
+      </p>
+    </div>
+  </div>
+
+  <!-- Handle pinned to the right edge; only reachable while the phone is away. -->
+  <button class="phone-tab" type="button" id="phoneTab"
+          aria-controls="phoneArea" aria-expanded="false" tabindex="-1">
+    <span aria-hidden="true">&lsaquo;</span>
+    <span class="phone-tab__label">phone</span>
+  </button>
+
+  <!-- Page label, bottom-left. Mirrors the mockup's print("...") motif. -->
+  <p class="stamp" id="stamp" aria-hidden="true"></p>
+
+  <script src="js/icons.js"></script>
+  <script src="js/content.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

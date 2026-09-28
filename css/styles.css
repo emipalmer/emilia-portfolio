@@ -1,0 +1,671 @@
+/* ============================================================================
+   styles.css
+   Palette and proportions are sampled directly from the Canva mockup.
+   Organisation: tokens → base → backdrop → nav → content → phone → responsive
+   ========================================================================== */
+
+/* --- 1. Design tokens ---------------------------------------------------- */
+:root {
+  /* Colours, all pulled off the exported artboard */
+  --mint:        #F4FFF0;   /* page background            */
+  --forest:      #163808;   /* body + headline text       */
+  --forest-soft: #2C5220;   /* secondary text             */
+  --sage:        #B7BFB4;   /* panel behind the lily      */
+  --rule:        #718967;   /* nav pill outline           */
+  --green:       #61A279;   /* resume button              */
+  --green-deep:  #2F6B44;
+  --screen:      #E5EEE2;   /* phone screen               */
+  --tile-a:      #8AAB7F;   /* app tile gradient, start   */
+  --tile-b:      #B5D5C5;   /* app tile gradient, end     */
+  --dock:        #B9CFB6;
+  --bezel:       #5A5675;   /* phone side rails           */
+  --pink:        #CF8D87;   /* banner gradient            */
+  --peach:       #FECFBD;
+
+  /* Type scale — 1.333 (perfect fourth), fluid between 380px and 1440px */
+  --step--1: clamp(0.82rem, 0.78rem + 0.18vw, 0.94rem);
+  --step-0:  clamp(1.00rem, 0.94rem + 0.28vw, 1.20rem);
+  --step-1:  clamp(1.25rem, 1.10rem + 0.60vw, 1.60rem);
+  --step-4:  clamp(2.60rem, 1.60rem + 4.20vw, 5.20rem);
+
+  --ease: cubic-bezier(.32, .72, 0, 1);
+}
+
+/* --- 2. Base ------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  /* Desktop is a single fixed frame — the phone navigates, nothing scrolls. */
+  overflow: hidden;
+  background: var(--mint);
+  color: var(--forest);
+  font-family: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: var(--step-0);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+
+a { color: inherit; }
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* One consistent, high-contrast focus ring everywhere. */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--forest);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--forest);
+  color: var(--mint);
+  text-decoration: none;
+  transition: top .18s var(--ease);
+}
+.skip-link:focus { top: 12px; }
+
+/* --- 3. Backdrop --------------------------------------------------------- */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.backdrop__panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 26vw;
+  height: 52vh;
+  background: var(--sage);
+}
+
+.backdrop__lily {
+  position: absolute;
+  top: -7vh;
+  right: -5vw;
+  width: 23vw;
+  min-width: 260px;
+  /* The mockup washes the flower out so it sits behind the text. */
+  opacity: .45;
+}
+
+/* --- 4. Top navigation --------------------------------------------------- */
+.topbar {
+  position: fixed;
+  top: 26px;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 clamp(16px, 3vw, 40px);
+}
+
+.pill {
+  position: relative;
+  pointer-events: auto;
+  border: 1.5px solid var(--rule);
+  border-radius: 999px;
+  padding: 6px;
+  background: color-mix(in srgb, var(--mint) 76%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.pill__list {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: clamp(8px, 4vw, 56px);
+  margin: 0;
+  padding: 0 10px;
+  list-style: none;
+}
+
+.pill__link {
+  display: block;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-style: italic;
+  font-weight: 400;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color .2s var(--ease);
+}
+
+.pill__link[aria-current='page'] { font-weight: 600; }
+
+/* Shown only once the phone navigator is hidden (see the 900px breakpoint). */
+.pill__item--compact { display: none; }
+
+/* The marker is absolutely positioned by JS, so it can slide between links. */
+.pill__marker {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tile-b) 60%, transparent);
+  transition: left .38s var(--ease), width .38s var(--ease), opacity .2s;
+  opacity: 0;
+}
+.pill__marker.is-ready { opacity: 1; }
+
+.resume-btn {
+  position: absolute;
+  pointer-events: auto;
+  right: clamp(16px, 3vw, 40px);
+  padding: 11px 26px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--green), var(--green-deep));
+  color: #fff;
+  font-size: var(--step--1);
+  text-decoration: none;
+  transition: transform .2s var(--ease);
+}
+.resume-btn:hover { transform: translateY(-1px); }
+
+/* --- 5. Stage + written content ------------------------------------------ */
+.stage {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  padding: 100px clamp(24px, 5vw, 90px) 72px;
+  /* Reserves room for the phone; shrinks when it's put away. */
+  padding-right: var(--phone-gutter, 470px);
+  transition: padding-right .5s var(--ease);
+}
+
+.content { min-width: 0; }
+
+.page {
+  /* Long pages (projects) scroll inside this column rather than moving the page. */
+  max-height: calc(100vh - 196px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 8px;
+}
+.page:focus { outline: none; }
+
+/* One orchestrated entrance per route change — nothing else animates on load. */
+.page.is-entering { animation: rise .42s var(--ease) both; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.headline {
+  margin: 0 0 28px;
+  font-size: var(--step-4);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -.02em;
+}
+.headline em {
+  font-style: italic;
+  font-weight: 400;
+}
+.headline .aside {
+  display: inline-block;
+  margin-left: 12px;
+  font-size: var(--step--1);
+  font-style: normal;
+  vertical-align: baseline;
+  color: var(--forest-soft);
+}
+
+/* Compact headline on the sub-pages so body copy has room. */
+.page[data-route='about'] .headline,
+.page[data-route='projects'] .headline,
+.page[data-route='skills'] .headline,
+.page[data-route='contact'] .headline {
+  font-size: clamp(2rem, 1.3rem + 2.4vw, 3.1rem);
+  margin-bottom: 24px;
+}
+
+.prose { max-width: 54ch; }
+.prose p { margin: 0 0 18px; }
+
+.bullets {
+  margin: 0 0 18px;
+  padding-left: 22px;
+  font-size: var(--step-0);
+}
+
+/* The home page uses the bullets as part of the hero, so they run larger. */
+.page[data-route='home'] .bullets { font-size: var(--step-1); }
+.bullets li { margin-bottom: 4px; }
+
+.bullets__label {
+  margin: 0 0 4px;
+  font-size: var(--step-0);
+}
+
+/* Project cards — outlined, not filled, to stay quiet against the backdrop. */
+.cards {
+  display: grid;
+  gap: 14px;
+  max-width: 62ch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  border: 1.5px solid color-mix(in srgb, var(--rule) 55%, transparent);
+  border-radius: 18px;
+  padding: 18px 22px;
+  background: color-mix(in srgb, #fff 42%, transparent);
+}
+
+.card__name {
+  margin: 0 0 6px;
+  font-size: var(--step-1);
+  font-weight: 600;
+}
+.card__blurb { margin: 0 0 10px; }
+
+.card__tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--step--1);
+  color: var(--forest-soft);
+}
+.card__tech li {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tile-b) 45%, transparent);
+}
+
+.linklist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.linklist a {
+  display: inline-block;
+  padding: 10px 22px;
+  border: 1.5px solid var(--rule);
+  border-radius: 999px;
+  font-style: italic;
+  text-decoration: none;
+  transition: background .2s var(--ease);
+}
+.linklist a:hover { background: color-mix(in srgb, var(--tile-b) 45%, transparent); }
+
+/* --- 6. Phone navigator -------------------------------------------------- */
+.phone-area {
+  position: absolute;
+  top: 50%;
+  right: clamp(24px, 4vw, 62px);
+  z-index: 3;
+  display: grid;
+  grid-template-columns: auto auto auto;
+  align-items: center;
+  gap: 10px;
+  justify-items: center;
+  transform: translateY(-50%);
+  transition: transform .55s var(--ease);
+}
+
+/* Away state: slide right, leaving a sliver of the device on screen. */
+body.phone-away .phone-area {
+  transform: translate(calc(100% - 18px), -50%);
+}
+body.phone-away .stage { padding-right: clamp(24px, 5vw, 90px); }
+
+/* Everything except the device itself fades out while away. */
+body.phone-away .chev,
+body.phone-away .dots,
+body.phone-away .hint,
+body.phone-away .phone-hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chev, .dots, .hint, .phone-hide { transition: opacity .3s var(--ease); }
+
+/* Small control that puts the phone away. */
+.phone-hide {
+  position: absolute;
+  top: 8px;
+  right: -8px;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: var(--forest-soft);
+  font-size: 15px;
+  line-height: 1;
+  background: color-mix(in srgb, var(--mint) 80%, transparent);
+  transition: background .2s var(--ease), opacity .3s var(--ease);
+}
+.phone-hide:hover { background: color-mix(in srgb, var(--tile-b) 55%, transparent); }
+
+/* Handle at the viewport edge, shown only once the phone is away. */
+.phone-tab {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  right: 46px;
+  padding: 12px 18px;
+  border: 1.5px solid var(--rule);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mint) 88%, transparent);
+  backdrop-filter: blur(6px);
+  color: var(--forest-soft);
+  font-size: var(--step--1);
+  font-style: italic;
+  transform: translate(180%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .45s var(--ease), opacity .3s var(--ease);
+}
+body.phone-away .phone-tab {
+  transform: translate(0, -50%);
+  opacity: 1;
+  pointer-events: auto;
+}
+.phone-tab__label { letter-spacing: .02em; }
+
+/* Visually hidden but available to screen readers. */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.chev {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: var(--forest-soft);
+  transition: background .2s var(--ease), transform .2s var(--ease);
+}
+.chev svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+.chev:hover { background: color-mix(in srgb, var(--tile-b) 45%, transparent); }
+.chev[disabled] { opacity: .25; cursor: default; }
+.chev[disabled]:hover { background: none; }
+
+.phone {
+  /* Height drives everything; the rest follows real device geometry —
+     415x874 body, 393x852 screen, 55pt screen radius. */
+  --ph: min(74vh, 630px);
+  --scale: calc(var(--ph) / 874);
+  width: calc(var(--ph) * 0.4748);
+  height: var(--ph);
+}
+
+.phone__bezel {
+  position: relative;
+  height: 100%;
+  padding: calc(11 * var(--scale));
+  border: 2px solid #14141a;
+  border-radius: calc(66 * var(--scale));
+  /* Brushed titanium rail rather than a flat fill. */
+  background: linear-gradient(150deg, #9e9eab 0%, #4c4c59 28%, #8a8a96 55%, #38383f 100%);
+  box-shadow: 0 18px 40px -24px rgba(22, 56, 8, .55);
+  display: flex;
+  flex-direction: column;
+}
+
+.phone__notch {
+  position: absolute;
+  top: calc(23 * var(--scale));
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(125 * var(--scale));
+  height: calc(36 * var(--scale));
+  border-radius: 999px;
+  background: #0a0a0d;
+  z-index: 2;
+}
+
+.phone__screen {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: calc(55 * var(--scale));
+  background: var(--screen);
+}
+
+/* The horizontal track: one full-width panel per screen. */
+.screens {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  transition: transform .45s var(--ease);
+}
+.screen {
+  flex: 0 0 100%;
+  padding: calc(52 * var(--scale)) calc(24 * var(--scale)) calc(10 * var(--scale));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.screen__photo,
+.screen__banner {
+  border-radius: 12px;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+.screen__photo img {
+  width: 100%;
+  height: clamp(120px, 22vh, 190px);
+  object-fit: cover;
+}
+
+.screen__banner {
+  display: grid;
+  place-items: center end;
+  height: clamp(52px, 8vh, 72px);
+  padding-right: 16px;
+  background: linear-gradient(90deg, var(--pink), var(--peach));
+  color: #fff;
+  font-size: var(--step-1);
+  font-style: italic;
+  font-weight: 600;
+}
+
+.screen__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* App tile — gradient square, label underneath, like a phone home screen. */
+.tile {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: calc(24 * var(--scale));
+  background: linear-gradient(135deg, var(--tile-a), var(--tile-b));
+  color: #fff;
+  transition: transform .18s var(--ease), box-shadow .18s var(--ease);
+}
+
+/* Icon slot: 42% of the tile, matching the 44/103 ratio in the Figma component. */
+.tile__glyph {
+  display: block;
+  width: 42%;
+}
+.tile__glyph svg { width: 100%; height: auto; display: block; }
+.tile--dock .tile__glyph { width: 45%; }
+.tile:hover { transform: translateY(-2px); }
+.tile:active { transform: scale(.95); }
+
+.tile[aria-current='page'] {
+  box-shadow: 0 0 0 2.5px var(--forest);
+}
+
+.tile__label {
+  display: block;
+  margin-top: 5px;
+  font-size: .62rem;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--forest);
+}
+
+.dock {
+  flex: 0 0 auto;
+  margin: 0 calc(20 * var(--scale)) calc(26 * var(--scale));
+  padding: calc(16 * var(--scale));
+  border-radius: calc(34 * var(--scale));
+  background: color-mix(in srgb, var(--dock) 62%, transparent);
+  display: grid;
+  place-items: center;
+}
+.tile--dock { width: 24%; }
+
+.dots {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 7px;
+  margin-top: 10px;
+}
+.dots button {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--rule) 40%, transparent);
+  transition: background .2s;
+}
+.dots button[aria-selected='true'] { background: var(--rule); }
+
+.hint {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0 0;
+  font-size: var(--step--1);
+  font-style: italic;
+  color: var(--forest-soft);
+}
+.hint__arrow {
+  width: 54px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+/* --- 7. Page stamp ------------------------------------------------------- */
+.stamp {
+  position: fixed;
+  left: clamp(24px, 5vw, 90px);
+  bottom: 34px;
+  z-index: 1;
+  margin: 0;
+  font-size: clamp(1.1rem, .7rem + 1.5vw, 2rem);
+  font-style: italic;
+  color: color-mix(in srgb, var(--forest) 14%, transparent);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* --- 8. Responsive ------------------------------------------------------- */
+
+/* Below 900px the phone is hidden and the page becomes a normal scrolling
+   document driven by the pill nav. */
+@media (max-width: 900px) {
+  body { overflow: auto; }
+
+  .phone-area,
+  .phone-tab { display: none; }
+
+  .stage {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100%;
+    align-items: start;
+    /* Clears the nav, which stacks into two rows here. */
+    padding: 178px 22px 72px;
+    padding-right: 22px;
+  }
+
+  .pill__item--compact { display: block; }
+
+  .headline .aside {
+    display: block;
+    margin: 8px 0 0;
+  }
+
+  .page { max-height: none; overflow: visible; padding-right: 0; }
+
+  /* Keep the art clear of the copy on narrow screens. */
+  .backdrop__panel { width: 44vw; height: 22vh; }
+  .backdrop__lily  { width: 46vw; opacity: .3; }
+
+  .topbar { top: 14px; flex-direction: column; gap: 10px; }
+  .resume-btn { position: static; }
+
+  .pill__list { gap: 2px; }
+  .pill__link { padding: 7px 12px; }
+
+  .stamp { position: static; margin: 26px 0 0; padding-left: 22px; }
+}
+
+@media (max-width: 420px) {
+  .pill__link { padding: 6px 9px; font-size: .9rem; }
+}
+
+/* Respect the system-level reduced-motion setting. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
