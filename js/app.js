@@ -52,8 +52,16 @@
 
   /** Read the route key out of the URL hash, falling back to home. */
   function routeFromHash() {
-    const key = (location.hash || '').replace(/^#\/?/, '').trim();
+    // Until detail pages exist (PR 4), #/projects/<slug> shows its parent page.
+    const key = (location.hash || '').replace(/^#\/?/, '').trim().split('/')[0];
     return Object.prototype.hasOwnProperty.call(CONTENT.pages, key) ? key : DEFAULT_ROUTE;
+  }
+
+  /** Websites and the resume PDF open in a new tab; mailto: stays in place. */
+  function linkAttrs(href) {
+    return /^https?:|\.pdf$/i.test(href)
+      ? { href, target: '_blank', rel: 'noopener' }
+      : { href };
   }
 
   /* --- Page rendering ---------------------------------------------------- */
@@ -86,28 +94,15 @@
 
       case 'cards': {
         const ul = el('ul', { className: 'cards' });
-        block.items.forEach(item => {
+        CONTENT[block.source].forEach(item => {
           const li = el('li', { className: 'card' });
+          li.append(el('h2', { className: 'card__name', text: item.name }));
+          li.append(el('p', { className: 'card__meta', text: item.meta.join('  \u00b7  ') }));
+          li.append(el('p', { className: 'card__blurb', text: item.blurb }));
 
-          // Only wrap the title in a link when a real URL exists.
-          const name = el('h2', { className: 'card__name' });
-          if (item.link) {
-            name.append(el('a', {
-              text: item.name,
-              attrs: { href: item.link, target: '_blank', rel: 'noopener' }
-            }));
-          } else {
-            name.textContent = item.name;
-          }
-          li.append(name);
-
-          if (item.blurb) li.append(el('p', { className: 'card__blurb', text: item.blurb }));
-
-          if (item.tech && item.tech.length) {
-            const tech = el('ul', { className: 'card__tech' });
-            item.tech.forEach(t => tech.append(el('li', { text: t })));
-            li.append(tech);
-          }
+          const tags = el('ul', { className: 'card__tech' });
+          item.tags.forEach(t => tags.append(el('li', { text: t })));
+          li.append(tags);
           ul.append(li);
         });
         return ul;
@@ -116,14 +111,8 @@
       case 'links': {
         const ul = el('ul', { className: 'linklist' });
         block.items.forEach(link => {
-          const attrs = { href: link.href };
-          // Open real websites in a new tab; keep mailto: in place.
-          if (/^https?:/i.test(link.href)) {
-            attrs.target = '_blank';
-            attrs.rel = 'noopener';
-          }
           const li = el('li');
-          li.append(el('a', { text: link.label, attrs }));
+          li.append(el('a', { text: link.label, attrs: linkAttrs(link.href) }));
           ul.append(li);
         });
         return ul;
@@ -217,12 +206,7 @@
     const isLink = Boolean(tile.href);
 
     const node = isLink
-      ? el('a', { className: 'tile', attrs: {
-          href: tile.href,
-          target: /^https?:/i.test(tile.href) ? '_blank' : '_self',
-          rel: 'noopener',
-          'aria-label': tile.label
-        }})
+      ? el('a', { className: 'tile', attrs: { ...linkAttrs(tile.href), 'aria-label': tile.label } })
       : el('button', { className: 'tile', attrs: {
           type: 'button',
           'data-route': tile.route,
@@ -244,21 +228,27 @@
       }});
 
       if (screen.photo) {
+        // The card starts on the headshot; rotating through the rest is a later PR.
+        const photo = CONTENT.photos.card[0];
         const wrap = el('div', { className: 'screen__photo' });
-        wrap.append(el('img', { attrs: {
-          src: screen.photo.src,
-          alt: screen.photo.alt || '',
-          loading: i === 0 ? 'eager' : 'lazy'
-        }}));
+        wrap.append(el('img', { attrs: { src: photo.src, alt: photo.alt, loading: 'eager' } }));
         panel.append(wrap);
       }
 
       if (screen.banner) {
-        panel.append(el('div', { className: 'screen__banner', text: screen.banner.text }));
+        panel.append(el('div', {
+          className: `screen__banner screen__banner--${screen.banner.tone}`,
+          text: screen.banner.text
+        }));
       }
 
+      // The projects screen has one tile per project, in list order.
+      const tiles = screen.tiles === 'projects'
+        ? CONTENT.projects.map(p => ({ label: p.tile, icon: p.icon, route: `#/projects/${p.slug}` }))
+        : screen.tiles;
+
       const grid = el('ul', { className: 'screen__grid' });
-      screen.tiles.forEach(tile => grid.append(buildTile(tile)));
+      tiles.forEach(tile => grid.append(buildTile(tile)));
       panel.append(grid);
 
       els.screens.append(panel);
@@ -351,6 +341,7 @@
 
   function init() {
     buildScreens();
+    document.querySelector('.tile--dock').append(icon('home'));
     goToScreen(0);
 
     // Any tile carrying data-route drives the router (includes the dock button).

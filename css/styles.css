@@ -224,7 +224,9 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
   max-height: calc(100vh - 196px);
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-right: 8px;
+  /* Room inside the clip for borders and focus rings; the margin cancels it out. */
+  padding: 6px 14px 6px 6px;
+  margin: -6px;
 }
 .page:focus { outline: none; }
 
@@ -252,6 +254,7 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
   margin-left: 12px;
   font-size: var(--fs-medium);
   font-style: normal;
+  letter-spacing: normal; /* the headline's em value would compute at 84px */
   vertical-align: baseline;
   color: var(--forest-soft);
 }
@@ -302,6 +305,12 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
   margin: 0 0 6px;
   font-size: 1.3125rem; /* 21 */
   font-weight: 600;
+}
+.card__meta {
+  margin: 0 0 8px;
+  font-size: var(--fs-small);
+  font-style: italic;
+  color: var(--forest-soft);
 }
 .card__blurb { margin: 0 0 10px; }
 
@@ -521,12 +530,14 @@ body.phone-away .phone-tab {
   place-items: center end;
   height: clamp(52px, 8vh, 72px);
   padding-right: 16px;
-  background: linear-gradient(90deg, var(--pink), var(--peach));
   color: var(--white);
   font-size: var(--fs-lead);
   font-style: italic;
   font-weight: 600;
 }
+
+.screen__banner--pink  { background: linear-gradient(90deg, var(--pink), var(--peach)); }
+.screen__banner--green { background: linear-gradient(90deg, var(--rule), var(--tile-b)); }
 
 .screen__grid {
   display: grid;
@@ -657,7 +668,7 @@ body.phone-away .phone-tab {
     margin: 8px 0 0;
   }
 
-  .page { max-height: none; overflow: visible; padding-right: 0; }
+  .page { max-height: none; overflow: visible; padding: 0; margin: 0; }
 
   .backdrop__panel { width: 44vw; height: 22vh; }
 

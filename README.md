@@ -23,7 +23,7 @@ css/styles.css      all styling; design tokens at the top
 js/icons.js         Lucide icon paths, keyed by name
 js/content.js       all copy, projects and links
 js/app.js           routing, rendering, phone behaviour
-assets/             images, resume.pdf
+assets/             resume.pdf; photos/ holds the site photos
 docs/design.md      design decisions, with the reasoning
 ```
 
