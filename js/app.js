@@ -116,25 +116,28 @@
         CONTENT[block.source].forEach(item => {
           const li = el('li', { className: 'card' });
 
-          // Name and meta share a row, tags and the link share another, so a
-          // card stays short enough for three to fit a laptop screen.
           // The whole card is the link: the title's link stretches over it.
-          const head = el('div', { className: 'card__head' });
           const name = el('h2', { className: 'card__name' });
           name.append(el('a', { className: 'card__link', text: item.name, attrs: { href: `#/projects/${item.slug}` } }));
-          head.append(name);
-          head.append(el('p', { className: 'card__meta', text: item.meta.join('  \u00b7  ') }));
-          li.append(head);
-          li.append(el('p', { className: 'card__blurb', text: item.blurb }));
-
           const tags = el('ul', { className: 'card__tech' });
           item.tags.forEach(t => tags.append(el('li', { text: t })));
-          const foot = el('div', { className: 'card__foot' });
-          foot.append(tags, el('span', { className: 'card__more', text: 'read more \u2192', attrs: { 'aria-hidden': 'true' } }));
-          li.append(foot);
+          li.append(name,
+            el('p', { className: 'card__meta', text: item.meta.join('  \u00b7  ') }),
+            el('p', { className: 'card__blurb', text: item.blurb }),
+            tags,
+            el('span', { className: 'card__more', text: 'read more \u2192', attrs: { 'aria-hidden': 'true' } }));
           ul.append(li);
         });
-        return pagedList(ul, 'projects');
+        return pagedList(ul, 'projects', 3);
+      }
+
+      case 'chips': {
+        const frag = document.createDocumentFragment();
+        frag.append(el('p', { className: 'chips__label', text: block.label }));
+        const ul = el('ul', { className: 'chips' });
+        block.items.forEach(item => ul.append(el('li', { className: 'chip', text: item })));
+        frag.append(ul);
+        return frag;
       }
 
       case 'collage':
@@ -347,8 +350,9 @@
 
   /* Projects: a page of cards at a time. */
 
-  function pagedList(list, label) {
-    const pager = el('div', { className: 'pager', attrs: { role: 'region', 'aria-label': label } });
+  /** `perPage` caps a page; fewer show when the screen is too short for the cap. */
+  function pagedList(list, label, perPage = Infinity) {
+    const pager = el('div', { className: 'pager', attrs: { role: 'region', 'aria-label': label, 'data-per-page': perPage } });
     const viewport = el('div', { className: 'pager__viewport', attrs: { tabindex: '0' } });
     viewport.append(list);
     pager.append(viewport, stepDots(`${label} pages`));
@@ -360,6 +364,7 @@
     const rail = pager.querySelector('.step-dots');
     const cards = Array.from(viewport.firstElementChild.children);  // cards or roles
     const label = pager.getAttribute('aria-label');
+    const perPage = Number(pager.dataset.perPage);
 
     // Below the breakpoint the document scrolls and every card shows.
     if (!desktop.matches) {
@@ -381,16 +386,26 @@
       const room = viewport.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
       const gap = parseFloat(getComputedStyle(cards[0].parentElement).rowGap) || 0;
 
-      pages = [];
-      let page = [];
-      let used = 0;
-      cards.forEach((card, i) => {
-        const need = card.offsetHeight + (page.length ? gap : 0);
-        if (page.length && used + need > room) { pages.push(page); page = []; used = 0; }
-        used += card.offsetHeight + (page.length ? gap : 0);
-        page.push(i);
-      });
-      pages.push(page);
+      const heights = cards.map(card => card.offsetHeight);
+      const fits = pg => pg.reduce((sum, k) => sum + heights[k], 0) + gap * (pg.length - 1) <= room;
+      const chunk = size => Array.from({ length: Math.ceil(cards.length / size) },
+        (_, n) => cards.slice(n * size, n * size + size).map((c, k) => n * size + k));
+
+      if (Number.isFinite(perPage)) {
+        // Even pages: the most per page, up to the cap, that every page can fit.
+        let size = perPage;
+        while (size > 1 && !chunk(size).every(fits)) size--;
+        pages = chunk(size);
+      } else {
+        // As many as fit, page by page.
+        pages = [];
+        let page = [];
+        cards.forEach((card, i) => {
+          if (page.length && !fits([...page, i])) { pages.push(page); page = []; }
+          page.push(i);
+        });
+        pages.push(page);
+      }
 
       // Keep the card that was first on screen on screen.
       current = pages.findIndex(pg => pg.includes(first));

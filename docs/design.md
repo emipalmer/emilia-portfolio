@@ -110,6 +110,9 @@ width, and ESDRS and ReVibe's phone screens sit in the column as a strip.
 The whole project card links to its detail page; "read more →" shares the tag
 row.
 
+**Skills** render as Figma's Chip: 16px, 9 × 18 padding, tile-b at 45% with a
+sage hairline. They are labels, not controls — no hover.
+
 **Experience** is one list, work then leadership, each group's label on its
 first role. It pages like the projects list when a screen can't fit all five
 (4 + 1 on a laptop) and shows everything, with no dots, when it can.
@@ -158,9 +161,11 @@ up brings the text straight back.
 
 **Projects paging.** The list never scrolls; it shows a page of cards at a
 time, one column, as wide as the column allows (max 900px). A page holds as many
-cards as fit the height — 3 on a laptop — recalculated on resize, keeping the
-first visible card on screen. Cards are kept short so three fit: name and meta
-share the top row, tags and "read more →" share the bottom one. Headline, nav, phone and stamp
+three cards, at every screen size from a laptop up — recalculated on resize,
+keeping the first visible card on screen. Cards keep Figma's stacked layout
+(name, meta, blurb, tags, read more) at Figma's type sizes with tightened gaps,
+which fits three from about 830px of viewport height. Shorter windows get even
+pages of two rather than a card cut off. Headline, nav, phone and stamp
 never move.
 
 Moving between pages: dots in the left margin (like the about page's), one wheel

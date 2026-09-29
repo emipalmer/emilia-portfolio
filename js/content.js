@@ -62,8 +62,8 @@ const CONTENT = {
       stamp: 'skills',
       title: { lead: 'what i ', em: 'work with', tail: '.' },
       body: [
-        { type: 'list', label: 'languages:', items: ['Python', 'Java', 'JavaScript', 'TypeScript', 'C', 'SQL'] },
-        { type: 'list', label: 'tools:', items: ['React', 'AWS', 'Docker', 'MongoDB', 'Git', 'Linux'] }
+        { type: 'chips', label: 'languages:', items: ['Python', 'Java', 'JavaScript', 'TypeScript', 'C', 'SQL'] },
+        { type: 'chips', label: 'tools:', items: ['React', 'AWS', 'Docker', 'MongoDB', 'Git', 'Linux'] }
       ]
     },
 
