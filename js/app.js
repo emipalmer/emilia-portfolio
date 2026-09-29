@@ -39,12 +39,12 @@
   const desktop = window.matchMedia('(min-width: 901px)');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  // Card motion needs the vendored GSAP; without it (or with reduced motion)
-  // paged lists still work, pages just swap without animating.
+  // Motion needs the vendored GSAP; without it (or with reduced motion) the
+  // stepped views still work, they just change without animating.
   const hasMotion = Boolean(window.gsap && window.ScrollTrigger);
   if (hasMotion) gsap.registerPlugin(ScrollTrigger);
 
-  let paged = null;      // the live paged list's handles, torn down on route change
+  let steps = null;      // the live stepped view's handles, torn down on route change
 
   /* --- Small helpers ----------------------------------------------------- */
 
@@ -123,6 +123,9 @@
         return pagedList(ul, 'projects');
       }
 
+      case 'collage':
+        return collage(CONTENT.photos.collage);
+
       case 'links': {
         const ul = el('ul', { className: 'linklist' });
         block.items.forEach(link => {
@@ -144,7 +147,7 @@
     const page = CONTENT.pages[key];
     if (!page) return;
 
-    teardownPager();
+    teardownSteps();
     els.page.textContent = '';
     els.page.dataset.route = key;
     els.page.append(renderHeadline(page.title));
@@ -156,7 +159,8 @@
     });
     els.page.append(prose);
     els.page.classList.toggle('page--paged', Boolean(prose.querySelector('.pager')));
-    setupPager();
+    els.page.classList.toggle('page--collage', Boolean(prose.querySelector('.collage')));
+    setupSteps();
 
     els.stamp.textContent = `print(\u201C${page.stamp}\u201D)`;
     document.title = `${page.stamp} — emilia`;
@@ -167,30 +171,111 @@
     els.page.classList.add('is-entering');
   }
 
-  /* --- Paged lists ------------------------------------------------------- */
+  /* --- Stepped views -----------------------------------------------------
+     The desktop page never scrolls. Content longer than the frame moves in
+     steps instead: dots in the left margin, one wheel or trackpad gesture per
+     step, arrow and page keys, or a swipe. Two views use it — the projects
+     list pages through its cards, and about builds its collage.
+  ------------------------------------------------------------------------ */
 
-  /**
-   * Long lists show a page of cards at a time instead of scrolling. As many
-   * cards as fit the column's height make a page; dots on the left step
-   * between pages, and a wheel or swipe moves one page per gesture.
-   */
+  /** Route wheel, key and swipe input on the page to step changes. */
+  function bindStepInput(step, jump, count) {
+    // One step per gesture: trackpads keep firing wheel events after a flick,
+    // so a gesture only counts again once the wheel has been quiet a moment.
+    let spent = false;
+    let quiet = null;
+    function onWheel(e) {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      e.preventDefault();
+      clearTimeout(quiet);
+      quiet = setTimeout(() => { spent = false; }, 220);
+      if (spent || Math.abs(e.deltaY) < 8) return;
+      spent = true;
+      step(Math.sign(e.deltaY));
+    }
+
+    function onKey(e) {
+      const dir = { ArrowDown: 1, PageDown: 1, ArrowUp: -1, PageUp: -1 }[e.key];
+      if (dir) step(dir);
+      else if (e.key === 'Home') jump(0);
+      else if (e.key === 'End') jump(count() - 1);
+      else return;
+      e.preventDefault();
+    }
+
+    let touchY = null;
+    const onTouchStart = e => { touchY = e.touches[0].clientY; };
+    const onTouchEnd = e => {
+      if (touchY === null) return;
+      const dy = touchY - e.changedTouches[0].clientY;
+      if (Math.abs(dy) > 40) step(Math.sign(dy));
+      touchY = null;
+    };
+
+    els.page.addEventListener('wheel', onWheel, { passive: false });
+    els.page.addEventListener('keydown', onKey);
+    els.page.addEventListener('touchstart', onTouchStart, { passive: true });
+    els.page.addEventListener('touchend', onTouchEnd);
+    return () => {
+      clearTimeout(quiet);
+      els.page.removeEventListener('wheel', onWheel);
+      els.page.removeEventListener('keydown', onKey);
+      els.page.removeEventListener('touchstart', onTouchStart);
+      els.page.removeEventListener('touchend', onTouchEnd);
+    };
+  }
+
+  function stepDots(label) {
+    return el('div', { className: 'step-dots', attrs: { role: 'group', 'aria-label': label } });
+  }
+
+  function renderDots(rail, labels, jump) {
+    rail.textContent = '';
+    rail.hidden = labels.length < 2;
+    labels.forEach((label, i) => {
+      const dot = el('button', { className: 'step-dot', attrs: { type: 'button', 'aria-label': label } });
+      dot.addEventListener('click', () => jump(i));
+      rail.append(dot);
+    });
+  }
+
+  function markDot(rail, i) {
+    Array.from(rail.children).forEach((dot, k) => {
+      if (k === i) dot.setAttribute('aria-current', 'true');
+      else dot.removeAttribute('aria-current');
+    });
+  }
+
+  function setupSteps() {
+    const pager = els.page.querySelector('.pager');
+    const collage = els.page.querySelector('.collage');
+    if (!pager && !collage) return;
+    const animate = hasMotion && !reducedMotion.matches;
+    steps = { cleanups: [] };
+    if (pager) setupPager(pager, animate, steps.cleanups);
+    if (collage) setupCollage(collage, animate, steps.cleanups);
+  }
+
+  function teardownSteps() {
+    if (!steps) return;
+    steps.cleanups.forEach(fn => fn());
+    steps = null;
+  }
+
+  /* Projects: a page of cards at a time. */
+
   function pagedList(list, label) {
     const pager = el('div', { className: 'pager', attrs: { role: 'region', 'aria-label': label } });
     const viewport = el('div', { className: 'pager__viewport', attrs: { tabindex: '0' } });
     viewport.append(list);
-    pager.append(viewport, el('div', { className: 'pager__dots', attrs: { role: 'group', 'aria-label': `${label} pages` } }));
+    pager.append(viewport, stepDots(`${label} pages`));
     return pager;
   }
 
-  function setupPager() {
-    const pager = els.page.querySelector('.pager');
-    if (!pager) return;
+  function setupPager(pager, animate, cleanups) {
     const viewport = pager.querySelector('.pager__viewport');
-    const dots = pager.querySelector('.pager__dots');
+    const rail = pager.querySelector('.step-dots');
     const cards = Array.from(viewport.querySelectorAll('.card'));
-    const animate = hasMotion && !reducedMotion.matches;
-    const cleanups = [];
-    paged = { cleanups };
 
     // Below the breakpoint the document scrolls and every card shows.
     if (!desktop.matches) {
@@ -225,27 +310,13 @@
 
       // Keep the card that was first on screen on screen.
       current = pages.findIndex(pg => pg.includes(first));
-      renderDots();
+      renderDots(rail, pages.map(pg => `Show projects ${pg[0] + 1}–${pg[pg.length - 1] + 1}`), go);
       show(current);
-    }
-
-    function renderDots() {
-      dots.textContent = '';
-      dots.hidden = pages.length < 2;
-      pages.forEach((pg, i) => {
-        const range = pg.length > 1 ? `${pg[0] + 1}–${pg[pg.length - 1] + 1}` : `${pg[0] + 1}`;
-        const dot = el('button', { className: 'pager__dot', attrs: { type: 'button', 'aria-label': `Show projects ${range}` } });
-        dot.addEventListener('click', () => go(i));
-        dots.append(dot);
-      });
     }
 
     function show(i) {
       cards.forEach((card, k) => { card.hidden = !pages[i].includes(k); });
-      Array.from(dots.children).forEach((dot, k) => {
-        if (k === i) dot.setAttribute('aria-current', 'true');
-        else dot.removeAttribute('aria-current');
-      });
+      markDot(rail, i);
     }
 
     /** Current cards drift out, the next page's drift in from the same side. */
@@ -264,70 +335,99 @@
         .fromTo(arriving, { y: 28 * dir, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out', stagger: 0.07 });
     }
 
-    // One page per gesture: trackpads keep firing wheel events after a flick,
-    // so a gesture only counts again once the wheel has been quiet a moment.
-    let spent = false;
-    let quiet = null;
-    function onWheel(e) {
-      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
-      e.preventDefault();
-      clearTimeout(quiet);
-      quiet = setTimeout(() => { spent = false; }, 220);
-      if (spent || Math.abs(e.deltaY) < 8) return;
-      spent = true;
-      go(current + Math.sign(e.deltaY));
-    }
-
-    function onKey(e) {
-      const step = { ArrowDown: 1, PageDown: 1, ArrowUp: -1, PageUp: -1 }[e.key];
-      if (step) go(current + step);
-      else if (e.key === 'Home') go(0);
-      else if (e.key === 'End') go(pages.length - 1);
-      else return;
-      e.preventDefault();
-    }
-
-    let touchY = null;
-    const onTouchStart = e => { touchY = e.touches[0].clientY; };
-    const onTouchEnd = e => {
-      if (touchY === null) return;
-      const dy = touchY - e.changedTouches[0].clientY;
-      if (Math.abs(dy) > 40) go(current + Math.sign(dy));
-      touchY = null;
-    };
-
-    els.page.addEventListener('wheel', onWheel, { passive: false });
-    pager.addEventListener('keydown', onKey);
-    viewport.addEventListener('touchstart', onTouchStart, { passive: true });
-    viewport.addEventListener('touchend', onTouchEnd);
     const resize = new ResizeObserver(paginate);
     resize.observe(viewport);
-
     paginate();
     if (animate) {
       gsap.fromTo(pages[current].map(k => cards[k]), { y: 24, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out', stagger: 0.07, delay: 0.1 });
     }
 
+    cleanups.push(bindStepInput(d => go(current + d), go, () => pages.length));
     cleanups.push(() => {
-      els.page.removeEventListener('wheel', onWheel);
-      clearTimeout(quiet);
       resize.disconnect();
       cards.forEach(card => { card.hidden = false; });
       if (hasMotion) { gsap.killTweensOf(cards); gsap.set(cards, { clearProps: 'opacity,transform' }); }
     });
   }
 
-  function teardownPager() {
-    if (!paged) return;
-    paged.cleanups.forEach(fn => fn());
-    paged = null;
+  /* About: the copy shrinks and fades while the collage builds over it. */
+
+  // Figma "✓ about / 1–3": headline, body and aside sizes and text opacity.
+  const ABOUT_STEPS = [
+    { headline: 84, body: 24, aside: 19, text: 1 },
+    { headline: 58, body: 19, aside: 15, text: 0.4 },
+    { headline: 40, body: 16, aside: 13, text: 0 }
+  ];
+
+  function collage(photos) {
+    const wrap = el('div', { className: 'collage' });
+    photos.forEach(photo => {
+      const img = el('img', { className: 'collage__photo', attrs: {
+        src: photo.src, alt: photo.alt, loading: 'lazy', 'data-step': photo.step, 'data-tilt': photo.tilt,
+        style: `--x:${photo.x};--y:${photo.y};--w:${photo.w};--h:${photo.h}`
+      }});
+      wrap.append(img);
+    });
+    wrap.append(stepDots('About'));
+    return wrap;
   }
 
-  /** Mobile: cards drift up into place as the page scrolls to them. */
-  function revealOnScroll(cards) {
-    gsap.set(cards, { opacity: 0, y: 24 });
-    const triggers = ScrollTrigger.batch(cards, {
+  function setupCollage(wrap, animate, cleanups) {
+    const photos = Array.from(wrap.querySelectorAll('.collage__photo'));
+
+    // Below the breakpoint the collage is a grid under the copy; nothing shrinks.
+    if (!desktop.matches) {
+      if (animate) cleanups.push(revealOnScroll(photos));
+      return;
+    }
+    // Without GSAP the page holds its arrival state: all copy, no collage.
+    if (!hasMotion) return;
+
+    const rail = wrap.querySelector('.step-dots');
+    const headline = els.page.querySelector('.headline');
+    const aside = headline.querySelector('.aside');
+    const paras = Array.from(els.page.querySelectorAll('.prose > p'));
+    // The hero headline clamps below 84 on narrower screens; keep its ratios.
+    const scale = parseFloat(getComputedStyle(headline).fontSize) / ABOUT_STEPS[0].headline;
+
+    const tl = gsap.timeline({ paused: true, defaults: { duration: 1, ease: 'power2.inOut' } });
+    tl.addLabel('step0');
+    [1, 2].forEach(n => {
+      const s = ABOUT_STEPS[n];
+      const at = `step${n - 1}`;
+      tl.to(headline, { fontSize: s.headline * scale }, at)
+        .to(aside, { fontSize: s.aside }, at)
+        .to(paras, { fontSize: s.body }, at)
+        .to([headline, ...paras], { opacity: s.text }, at)
+        .fromTo(photos.filter(p => +p.dataset.step === n),
+          { opacity: 0, y: 36, scale: 0.94, rotation: (i, p) => +p.dataset.tilt },
+          { opacity: 1, y: 0, scale: 1, rotation: 0, stagger: 0.12, ease: 'power3.out' }, `${at}+=0.25`)
+        .addLabel(`step${n}`);
+    });
+
+    let current = 0;
+    function go(to) {
+      if (to < 0 || to >= ABOUT_STEPS.length || to === current) return;
+      current = to;
+      markDot(rail, current);
+      if (animate) tl.tweenTo(`step${to}`, { duration: 0.9, ease: 'power1.inOut' });
+      else tl.seek(`step${to}`);
+    }
+
+    renderDots(rail, ['About: arrival', 'About: collage arrives', 'About: collage'], go);
+    markDot(rail, current);
+    cleanups.push(bindStepInput(d => go(current + d), go, () => ABOUT_STEPS.length));
+    cleanups.push(() => {
+      tl.kill();
+      gsap.set([headline, aside, ...paras, ...photos], { clearProps: 'all' });
+    });
+  }
+
+  /** Mobile: items drift up into place as the page scrolls to them. */
+  function revealOnScroll(items) {
+    gsap.set(items, { opacity: 0, y: 24 });
+    const triggers = ScrollTrigger.batch(items, {
       start: 'top 92%',
       once: true,
       onEnter: batch => gsap.to(batch, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', stagger: 0.08 })
@@ -336,8 +436,8 @@
     ScrollTrigger.refresh();
     return () => {
       triggers.forEach(t => t.kill());
-      gsap.killTweensOf(cards);
-      gsap.set(cards, { clearProps: 'opacity,transform' });
+      gsap.killTweensOf(items);
+      gsap.set(items, { clearProps: 'opacity,transform' });
     };
   }
 
@@ -549,8 +649,8 @@
     // Crossing below the breakpoint must never leave the only nav hidden.
     desktop.addEventListener('change', e => {
       if (!e.matches && navAway) setNavAway(false);
-      teardownPager();
-      setupPager();
+      teardownSteps();
+      setupSteps();
     });
 
     els.hide.addEventListener('click', () => setPhoneAway(true, true));
