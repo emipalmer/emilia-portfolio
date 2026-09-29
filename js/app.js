@@ -18,6 +18,7 @@
     page:    document.getElementById('page'),
     stamp:   document.getElementById('stamp'),
     screens: document.getElementById('screens'),
+    screenBox: document.querySelector('.phone__screen'),
     dots:    document.getElementById('dots'),
     marker:  document.querySelector('.pill__marker'),
     navLinks: Array.from(document.querySelectorAll('.pill__link')),
@@ -31,7 +32,8 @@
   };
 
   let screenIndex = 0;   // which phone home screen is showing
-  let currentRoute = ''; // the active page key
+  let currentRoute = ''; // the active page key (nav highlight)
+  let currentPath = '';  // the full hash path, e.g. projects/esdrs
   let phoneAway = false; // whether the phone is slid off to the side
   let navAway = false;   // whether the nav is slid up past the top edge
 
@@ -59,10 +61,19 @@
   }
 
   /** Read the route key out of the URL hash, falling back to home. */
+  /**
+   * Read the hash: a page (#/about), a project's detail (#/projects/esdrs),
+   * or neither — which gets the 404 page rather than a silent fallback.
+   */
   function routeFromHash() {
-    // Until detail pages exist (PR 4), #/projects/<slug> shows its parent page.
-    const key = (location.hash || '').replace(/^#\/?/, '').trim().split('/')[0];
-    return Object.prototype.hasOwnProperty.call(CONTENT.pages, key) ? key : DEFAULT_ROUTE;
+    const path = (location.hash || '').replace(/^#\/?/, '').trim() || DEFAULT_ROUTE;
+    const [key, slug] = path.split('/');
+    if (key === 'projects' && slug) {
+      const project = CONTENT.projects.find(p => p.slug === slug);
+      return project ? { path, key, project } : { path, key: null };
+    }
+    const known = Object.prototype.hasOwnProperty.call(CONTENT.pages, key) && !slug;
+    return { path, key: known ? key : null };
   }
 
   /** Websites and the resume PDF open in a new tab; mailto: stays in place. */
@@ -107,8 +118,11 @@
 
           // Name and meta share a row, tags and the link share another, so a
           // card stays short enough for three to fit a laptop screen.
+          // The whole card is the link: the title's link stretches over it.
           const head = el('div', { className: 'card__head' });
-          head.append(el('h2', { className: 'card__name', text: item.name }));
+          const name = el('h2', { className: 'card__name' });
+          name.append(el('a', { className: 'card__link', text: item.name, attrs: { href: `#/projects/${item.slug}` } }));
+          head.append(name);
           head.append(el('p', { className: 'card__meta', text: item.meta.join('  \u00b7  ') }));
           li.append(head);
           li.append(el('p', { className: 'card__blurb', text: item.blurb }));
@@ -116,7 +130,7 @@
           const tags = el('ul', { className: 'card__tech' });
           item.tags.forEach(t => tags.append(el('li', { text: t })));
           const foot = el('div', { className: 'card__foot' });
-          foot.append(tags);
+          foot.append(tags, el('span', { className: 'card__more', text: 'read more \u2192', attrs: { 'aria-hidden': 'true' } }));
           li.append(foot);
           ul.append(li);
         });
@@ -125,6 +139,25 @@
 
       case 'collage':
         return collage(CONTENT.photos.collage);
+
+      case 'roles': {
+        // One flat list, each group's label riding on its first role, so it
+        // pages like the project cards when a screen is too short for all five.
+        const ul = el('ul', { className: 'roles' });
+        CONTENT.experience.forEach(group => {
+          group.roles.forEach((role, i) => {
+            const li = el('li', { className: 'role' });
+            if (i === 0) li.append(el('h2', { className: 'roles__label', text: group.group }));
+            const head = el('div', { className: 'role__head' });
+            head.append(el('h3', { className: 'role__title', text: role.title }), el('p', { className: 'role__dates', text: role.dates }));
+            li.append(head,
+              el('p', { className: 'role__org', text: [role.org, role.team].filter(Boolean).join(' \u00b7 ') }),
+              el('p', { className: 'role__line', text: role.line }));
+            ul.append(li);
+          });
+        });
+        return pagedList(ul, 'experience');
+      }
 
       case 'links': {
         const ul = el('ul', { className: 'linklist' });
@@ -143,32 +176,82 @@
   }
 
   /** Swap the written column to a new route. */
-  function renderPage(key) {
-    const page = CONTENT.pages[key];
-    if (!page) return;
-
+  function renderPage(route) {
     teardownSteps();
+    if (unfitImage) { unfitImage(); unfitImage = null; }
     els.page.textContent = '';
-    els.page.dataset.route = key;
-    els.page.append(renderHeadline(page.title));
+    els.page.dataset.route = route.project ? 'detail' : route.key || 'missing';
 
-    const prose = el('div', { className: 'prose' });
-    page.body.forEach(block => {
-      const node = renderBlock(block);
-      if (node) prose.append(node);
-    });
-    els.page.append(prose);
-    els.page.classList.toggle('page--paged', Boolean(prose.querySelector('.pager')));
-    els.page.classList.toggle('page--collage', Boolean(prose.querySelector('.collage')));
+    let stamp, title;
+    if (route.project) {
+      renderDetail(route.project);
+      stamp = 'projects';
+      title = route.project.name;
+    } else {
+      const page = route.key ? CONTENT.pages[route.key] : CONTENT.notFound;
+      els.page.append(renderHeadline(page.title));
+      const prose = el('div', { className: 'prose' });
+      page.body.forEach(block => {
+        const node = renderBlock(block);
+        if (node) prose.append(node);
+      });
+      els.page.append(prose);
+      stamp = title = page.stamp;
+    }
+
+    els.page.classList.toggle('page--paged', Boolean(els.page.querySelector('.pager')));
+    els.page.classList.toggle('page--collage', Boolean(els.page.querySelector('.collage')));
+    els.page.classList.toggle('page--detail', Boolean(route.project));
     setupSteps();
 
-    els.stamp.textContent = `print(\u201C${page.stamp}\u201D)`;
-    document.title = `${page.stamp} — emilia`;
+    els.stamp.textContent = `print(\u201C${stamp}\u201D)`;
+    document.title = `${title} — emilia`;
 
     // Restart the entrance animation on every change.
     els.page.classList.remove('is-entering');
     void els.page.offsetWidth; // force reflow so the animation replays
     els.page.classList.add('is-entering');
+  }
+
+  /** A project's own page: back link, title, meta, image, write-up, tags. */
+  function renderDetail(project) {
+    els.page.append(el('a', { className: 'detail__back', text: '\u2190 projects', attrs: { href: '#/projects' } }));
+    els.page.append(el('h1', { className: 'headline', text: project.name }));
+
+    const prose = el('div', { className: 'prose' });
+    prose.append(el('p', { className: 'detail__meta', text: [...project.meta, project.award].filter(Boolean).join('  \u00b7  ') }));
+    if (project.image) {
+      const img = el('img', { className: 'detail__image', attrs: { src: project.image.src, alt: project.image.alt } });
+      prose.append(img);
+      fitDetailImage(img);
+    }
+    // With no phone below the breakpoint, the demo screens sit in the column.
+    if (project.screens) {
+      const strip = el('div', { className: 'detail__screens' });
+      project.screens.forEach(shot => strip.append(el('img', { attrs: { src: shot.src, alt: shot.alt, loading: 'lazy' } })));
+      prose.append(strip);
+    }
+    project.body.forEach(text => prose.append(el('p', { text })));
+    const tags = el('ul', { className: 'card__tech detail__tags' });
+    project.tags.forEach(t => tags.append(el('li', { text: t })));
+    prose.append(tags);
+    els.page.append(prose);
+  }
+
+  /**
+   * On desktop the image shrinks so the write-up always fits; below 120px it
+   * would be a sliver, so it steps aside until the window has room again.
+   */
+  let unfitImage = null;
+  function fitDetailImage(img) {
+    const fit = () => {
+      img.hidden = false;
+      if (desktop.matches && img.complete && img.clientHeight < 120) img.hidden = true;
+    };
+    const resize = new ResizeObserver(fit);
+    resize.observe(els.page);
+    img.addEventListener('load', fit);
+    unfitImage = () => resize.disconnect();
   }
 
   /* --- Stepped views -----------------------------------------------------
@@ -275,7 +358,8 @@
   function setupPager(pager, animate, cleanups) {
     const viewport = pager.querySelector('.pager__viewport');
     const rail = pager.querySelector('.step-dots');
-    const cards = Array.from(viewport.querySelectorAll('.card'));
+    const cards = Array.from(viewport.firstElementChild.children);  // cards or roles
+    const label = pager.getAttribute('aria-label');
 
     // Below the breakpoint the document scrolls and every card shows.
     if (!desktop.matches) {
@@ -310,7 +394,7 @@
 
       // Keep the card that was first on screen on screen.
       current = pages.findIndex(pg => pg.includes(first));
-      renderDots(rail, pages.map(pg => `Show projects ${pg[0] + 1}–${pg[pg.length - 1] + 1}`), go);
+      renderDots(rail, pages.map(pg => `Show ${label} ${pg[0] + 1}–${pg[pg.length - 1] + 1}`), go);
       show(current);
     }
 
@@ -544,17 +628,30 @@
       panel.append(grid);
 
       els.screens.append(panel);
+    });
+    renderPhoneDots();
+  }
 
-      // Matching dot in the pager.
+  /** One dot per home screen, or per demo screen while a demo is showing. */
+  function renderPhoneDots() {
+    els.dots.textContent = '';
+    const count = demo ? demo.shots.length : CONTENT.screens.length;
+    for (let i = 0; i < count; i++) {
       const dot = el('button', { attrs: {
         type: 'button',
         role: 'tab',
-        'aria-label': `Screen ${i + 1}`,
-        'aria-selected': String(i === 0)
+        'aria-label': demo ? `${demo.name} screen ${i + 1}` : `Screen ${i + 1}`,
+        'aria-selected': 'false'
       }});
-      dot.addEventListener('click', () => goToScreen(i));
+      dot.addEventListener('click', () => phoneGo(i));
       els.dots.append(dot);
-    });
+    }
+  }
+
+  function markPhonePager(index, count) {
+    els.prev.disabled = index === 0;
+    els.next.disabled = index === count - 1;
+    Array.from(els.dots.children).forEach((dot, i) => dot.setAttribute('aria-selected', String(i === index)));
   }
 
   /** Slide the phone to a given screen and update the chevrons and dots. */
@@ -563,15 +660,57 @@
     screenIndex = Math.max(0, Math.min(index, last));
 
     els.screens.style.transform = `translateX(-${screenIndex * 100}%)`;
-    els.prev.disabled = screenIndex === 0;
-    els.next.disabled = screenIndex === last;
-
-    Array.from(els.dots.children).forEach((dot, i) => {
-      dot.setAttribute('aria-selected', String(i === screenIndex));
-    });
-
+    markPhonePager(screenIndex, last + 1);
     syncTileFocus();
   }
+
+  /* --- Phone demo ----------------------------------------------------------
+     On esdrs and ReVibe's detail pages the phone shows that project's screens
+     at 1:1 (both are designed at 393x852, like the phone). The chevrons page
+     through them; the home bar goes back to the home screens. The page column
+     stays on the detail either way, and leaving it closes the demo.
+  ------------------------------------------------------------------------ */
+
+  let demo = null;  // { name, node, shots, index } while a demo is on the phone
+
+  function openDemo(project) {
+    closeDemo();
+    const node = el('div', { className: 'phone__demo', attrs: { role: 'group', 'aria-label': `${project.name} screens` } });
+    const shots = project.screens.map(shot => {
+      const img = el('img', { className: 'phone__shot', attrs: { src: shot.src, alt: shot.alt } });
+      node.append(img);
+      return img;
+    });
+    const home = el('button', { className: 'phone__home', attrs: { type: 'button', 'aria-label': 'Back to the home screen' } });
+    home.addEventListener('click', closeDemo);
+    node.append(home);
+
+    // Everything under the demo is out of reach until it closes.
+    els.screenBox.querySelectorAll(':scope > *').forEach(child => { child.inert = true; });
+    els.screenBox.append(node);
+    demo = { name: project.name, node, shots, index: 0 };
+    renderPhoneDots();
+    phoneGo(0);
+  }
+
+  function closeDemo() {
+    if (!demo) return;
+    demo.node.remove();
+    demo = null;
+    els.screenBox.querySelectorAll(':scope > *').forEach(child => { child.inert = false; });
+    renderPhoneDots();
+    goToScreen(screenIndex);
+  }
+
+  /** Page the phone: the demo's screens while one is open, else the home screens. */
+  function phoneGo(index) {
+    if (!demo) { goToScreen(index); return; }
+    demo.index = Math.max(0, Math.min(index, demo.shots.length - 1));
+    demo.shots.forEach((img, i) => img.classList.toggle('is-current', i === demo.index));
+    markPhonePager(demo.index, demo.shots.length);
+  }
+
+  const phoneIndex = () => demo ? demo.index : screenIndex;
 
   /** Only tiles on the visible screen of a visible phone are tabbable. */
   function syncTileFocus() {
@@ -619,12 +758,15 @@
   /* --- Wiring ------------------------------------------------------------ */
 
   function handleRouteChange() {
-    const key = routeFromHash();
-    if (key === currentRoute) return;
-    currentRoute = key;
+    const route = routeFromHash();
+    if (route.path === currentPath) return;
+    currentPath = route.path;
+    currentRoute = route.key || '';
 
-    renderPage(key);
-    syncNav(key);
+    renderPage(route);
+    syncNav(currentRoute);
+    if (route.project && route.project.screens) openDemo(route.project);
+    else closeDemo();
 
     // Move focus to the new content so keyboard and screen-reader users
     // land in the right place after navigating.
@@ -642,8 +784,8 @@
       if (tile) location.hash = tile.dataset.route;
     });
 
-    els.prev.addEventListener('click', () => goToScreen(screenIndex - 1));
-    els.next.addEventListener('click', () => goToScreen(screenIndex + 1));
+    els.prev.addEventListener('click', () => phoneGo(phoneIndex() - 1));
+    els.next.addEventListener('click', () => phoneGo(phoneIndex() + 1));
 
     els.navToggle.addEventListener('click', () => setNavAway(!navAway));
     // Crossing below the breakpoint must never leave the only nav hidden.
@@ -669,18 +811,17 @@
       if (event.target.matches('input, textarea')) return;
       if (event.key === 'Escape' && !phoneAway) { setPhoneAway(true, true); return; }
       if (phoneAway) return; // arrows do nothing while it's tucked away
-      if (event.key === 'ArrowRight') goToScreen(screenIndex + 1);
-      if (event.key === 'ArrowLeft') goToScreen(screenIndex - 1);
+      if (event.key === 'ArrowRight') phoneGo(phoneIndex() + 1);
+      if (event.key === 'ArrowLeft') phoneGo(phoneIndex() - 1);
     });
 
     // Touch swipe on the phone screen itself.
     let touchStartX = null;
-    const screenBox = document.querySelector('.phone__screen');
-    screenBox.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
-    screenBox.addEventListener('touchend', e => {
+    els.screenBox.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    els.screenBox.addEventListener('touchend', e => {
       if (touchStartX === null) return;
       const delta = e.changedTouches[0].clientX - touchStartX;
-      if (Math.abs(delta) > 45) goToScreen(screenIndex + (delta < 0 ? 1 : -1));
+      if (Math.abs(delta) > 45) phoneGo(phoneIndex() + (delta < 0 ? 1 : -1));
       touchStartX = null;
     });
 
