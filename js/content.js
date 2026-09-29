@@ -11,9 +11,9 @@ const EMAIL = ['mia.annp', 'gmail.com'].join('@');
 
 const LINKS = {
   email:    { label: 'email',    href: `mailto:${EMAIL}`,                          display: EMAIL },
-  github:   { label: 'github',   href: 'https://github.com/emipalmer',             display: 'github.com/emipalmer' },
+  github:   { label: 'github',   href: 'https://github.com/emipalmer',             display: 'github.com/emipalmer', icon: 'github' },
   linkedin: { label: 'linkedin', href: 'https://linkedin.com/in/emiliaapalmer',    display: 'linkedin.com/in/emiliaapalmer' },
-  resume:   { label: 'resume',   href: 'assets/resume.pdf' }
+  resume:   { label: 'resume',   href: 'assets/resume.pdf', icon: 'download' }
 };
 
 const CONTENT = {
@@ -31,7 +31,7 @@ const CONTENT = {
       title: { lead: 'hi, i’m ', em: 'emilia', tail: '.' },
       body: [
         { type: 'list', items: ['computer science @ penn state', 'aspiring developer'] },
-        { type: 'links', items: [LINKS.resume, LINKS.github] }
+        { type: 'actions', items: [LINKS.resume, LINKS.github] }
       ]
     },
 
@@ -81,7 +81,7 @@ const CONTENT = {
   /* --- Projects ----------------------------------------------------------
      Order is deliberate: featured first, design-only last. The phone's
      projects screen uses the same order.
-       slug   : #/projects/<slug>
+       slug   : #/projects/<slug>        shortName: mobile card title, if shorter
        tile   : label on the phone tile      short : one-liner for mobile cards
        meta   : dates, then role(s)          body  : detail-page paragraphs
        image  : shown on the detail page     screens: shown in the phone on
@@ -121,7 +121,7 @@ const CONTENT = {
       ]
     },
     {
-      slug: 'dementia-mr', name: 'Dementia Care MR Simulation', tile: 'dementia mr', icon: 'dementia',
+      slug: 'dementia-mr', name: 'Dementia Care MR Simulation', shortName: 'Dementia Care MR', tile: 'dementia mr', icon: 'dementia',
       meta: ['spring 2026', 'software developer'],
       blurb: 'A mixed reality dementia-care training module for Meta Quest, built for instructors and students.',
       short: 'Mixed reality training on Meta Quest.',
@@ -133,7 +133,7 @@ const CONTENT = {
       ]
     },
     {
-      slug: 'gemini-add-on', name: 'Gemini AI Document Add-On', tile: 'gemini add-on', icon: 'gemini',
+      slug: 'gemini-add-on', name: 'Gemini AI Document Add-On', shortName: 'Gemini AI Add-On', tile: 'gemini add-on', icon: 'gemini',
       meta: ['mar 2025', 'frontend & integration'],
       blurb: 'A Google Docs add-on that runs Gemini analyses inside the document, with one-click feedback. Projected to cut editing time 30%.',
       short: 'Gemini analyses inside Google Docs.',

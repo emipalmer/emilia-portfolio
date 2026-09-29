@@ -100,6 +100,14 @@
     return h1;
   }
 
+  /** Text with a desktop and a mobile version; CSS shows one, and the hidden one isn't read. */
+  function twoLengths(tag, className, long, short) {
+    const node = el(tag, { className });
+    if (!short) { node.textContent = long; return node; }
+    node.append(el('span', { className: 'only-wide', text: long }), el('span', { className: 'only-narrow', text: short }));
+    return node;
+  }
+
   /** Render one content block. Returns a node, or null for unknown types. */
   function renderBlock(block) {
     switch (block.type) {
@@ -123,12 +131,13 @@
 
           // The whole card is the link: the title's link stretches over it.
           const name = el('h2', { className: 'card__name' });
-          name.append(el('a', { className: 'card__link', text: item.name, attrs: { href: `#/projects/${item.slug}` } }));
+          name.append(twoLengths('a', 'card__link', item.name, item.shortName));
+          name.firstChild.setAttribute('href', `#/projects/${item.slug}`);
           const tags = el('ul', { className: 'card__tech' });
           item.tags.forEach(t => tags.append(el('li', { text: t })));
           li.append(name,
             el('p', { className: 'card__meta', text: item.meta.join('  \u00b7  ') }),
-            el('p', { className: 'card__blurb', text: item.blurb }),
+            twoLengths('p', 'card__blurb', item.blurb, item.short),
             tags,
             el('span', { className: 'card__more', text: 'read more \u2192', attrs: { 'aria-hidden': 'true' } }));
           ul.append(li);
@@ -158,9 +167,10 @@
             if (i === 0) li.append(el('h2', { className: 'roles__label', text: group.group }));
             const head = el('div', { className: 'role__head' });
             head.append(el('h3', { className: 'role__title', text: role.title }), el('p', { className: 'role__dates', text: role.dates }));
-            li.append(head,
-              el('p', { className: 'role__org', text: [role.org, role.team].filter(Boolean).join(' \u00b7 ') }),
-              el('p', { className: 'role__line', text: role.line }));
+            const org = el('p', { className: 'role__org', text: role.org });
+            if (role.team) org.append(el('span', { className: 'only-wide', text: ` \u00b7 ${role.team}` }));
+            org.append(el('span', { className: 'only-narrow', text: ` \u00b7 ${role.dates}` }));
+            li.append(head, org, twoLengths('p', 'role__line', role.line, role.short));
             ul.append(li);
           });
         });
@@ -172,6 +182,19 @@
         });
         ul.append(skills);
         return pagedList(ul, 'experience');
+      }
+
+      // Chips with an icon: home's resume and github.
+      case 'actions': {
+        const ul = el('ul', { className: 'actions' });
+        block.items.forEach(link => {
+          const a = el('a', { className: 'action', attrs: linkAttrs(link.href) });
+          a.append(icon(link.icon, 'action__icon'), el('span', { text: link.label }));
+          const li = el('li');
+          li.append(a);
+          ul.append(li);
+        });
+        return ul;
       }
 
       case 'links': {
@@ -617,9 +640,9 @@
    * Build an inline SVG icon from js/icons.js.
    * Sized in CSS via width/height:100%, so one path serves every slot.
    */
-  function icon(name) {
+  function icon(name, className = 'tile__glyph') {
     const markup = ICONS[name];
-    const span = el('span', { className: 'tile__glyph', attrs: { 'aria-hidden': 'true' } });
+    const span = el('span', { className, attrs: { 'aria-hidden': 'true' } });
     if (!markup) {
       console.warn('Unknown icon:', name);
       return span;
@@ -827,7 +850,18 @@
     els.page.focus({ preventScroll: true });
   }
 
+  /** Give each nav link its tile icon; below 900px only the current one keeps its label. */
+  function buildNavIcons() {
+    els.navLinks.forEach(link => {
+      const key = link.getAttribute('href').replace('#/', '');
+      const label = el('span', { className: 'pill__label', text: link.textContent });
+      link.textContent = '';
+      link.append(icon(key, 'pill__icon'), label);
+    });
+  }
+
   function init() {
+    buildNavIcons();
     buildScreens();
     document.querySelector('.tile--dock').append(icon('home'));
     goToScreen(0);

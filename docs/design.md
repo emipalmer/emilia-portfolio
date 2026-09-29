@@ -238,19 +238,26 @@ already holding one.
 The phone navigator is hidden, with two consequences.
 
 The pill carries **every** destination, because there is no phone tile to reach
-them by. Six labels do not fit at 390px, so the nav is **icons**, with the active
-item expanding to show its label. Icons are the same set as the phone tiles, so
-the meanings carry over from desktop. Every icon needs an `aria-label` — a screen
-reader gets nothing from an SVG path, and the labels are the only naming.
+them by. Five labels do not fit at 390px, so the nav is **icons** (17px, in a
+44px pill at y16), with the active item expanding to show its label. Icons are
+the same set as the phone tiles, so the meanings carry over from desktop. The
+labels stay in the markup, visually hidden on inactive items, so every link has
+a real name for screen readers.
 
 The nav has **no collapse toggle**. It is the only navigation; if it could be
 dismissed someone could strand themselves.
 
 About's text does not shrink on mobile — the shrink exists to clear room for the
-collage, and at 390px there is no room to reclaim. The collage stacks into one
-column beneath.
+collage, and at 390px there is no room to reclaim. The collage is a two-column
+grid beneath.
 
-Tap targets are 44px minimum.
+Mobile carries less text: project cards show their one-line `short` blurb and a
+`shortName` where one exists, with no tags; roles show "org · dates" and their
+`short` line. Both versions are in the markup, and CSS hides one (so it isn't
+read). Home is centred vertically, as in the frame.
+
+Tap targets are 44px minimum; the nav's icons get theirs from an invisible hit
+area, so what's drawn stays at the frame's 35×31.
 
 ---
 
@@ -261,7 +268,7 @@ One breakpoint only, at 900. Everything else is the same layout squeezed.
 - content column: `clamp(420px, 42vw, 640px)`
 - gutters: `clamp(24px, 6.25vw, 90px)`
 - projects viewport: height from available space, not a fixed 600
-- phone: already fluid, sized from `vh`
+- phone: one scale from both width and height (`--dev`, see §2)
 
 Above 1440 nothing grows; the column stops at 640 so lines stay readable and the
 extra width becomes margin.
