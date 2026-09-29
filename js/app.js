@@ -25,6 +25,7 @@
     prev:    document.querySelector('.chev--prev'),
     next:    document.querySelector('.chev--next'),
     area:    document.getElementById('phoneArea'),
+    phone:   document.querySelector('.phone'),
     hide:    document.getElementById('phoneHide'),
     tab:     document.getElementById('phoneTab'),
     nav:     document.getElementById('primaryNav'),
@@ -681,10 +682,11 @@
       }});
 
       if (screen.photo) {
-        // The card starts on the headshot; rotating through the rest is a later PR.
-        const photo = CONTENT.photos.card[0];
+        // Every card photo is stacked here; showPhoto() crossfades between them.
         const wrap = el('div', { className: 'screen__photo' });
-        wrap.append(el('img', { attrs: { src: photo.src, alt: photo.alt, loading: 'eager' } }));
+        CONTENT.photos.card.forEach((photo, k) => {
+          wrap.append(el('img', { attrs: { src: photo.src, alt: photo.alt, loading: k ? 'lazy' : 'eager', decoding: 'async' } }));
+        });
         panel.append(wrap);
       }
 
@@ -739,6 +741,53 @@
     els.screens.style.transform = `translateX(-${screenIndex * 100}%)`;
     markPhonePager(screenIndex, last + 1);
     syncTileFocus();
+  }
+
+  /* --- Phone motion --------------------------------------------------------
+     The photo card cycles rather than holding one portrait — a fixed face in
+     the corner of every page is a lot. Headshot first, so the landing page is
+     still her; it advances on every page change and every ~6s otherwise,
+     with a 400ms crossfade. The phone itself slides in from the right edge
+     tilted 7deg, straightening as it lands; putting it away runs the same
+     path in reverse. Reduced motion: no timer, no tilt, changes are instant.
+  ------------------------------------------------------------------------ */
+
+  const PHOTO_EVERY = 6000;
+  let photoIndex = 0;
+  let photoTimer = null;
+
+  function showPhoto(index) {
+    const imgs = els.screens.querySelectorAll('.screen__photo img');
+    photoIndex = (index + imgs.length) % imgs.length;
+    imgs.forEach((img, k) => {
+      img.classList.toggle('is-current', k === photoIndex);
+      // Only the photo on show is announced.
+      if (k === photoIndex) img.removeAttribute('aria-hidden');
+      else img.setAttribute('aria-hidden', 'true');
+    });
+  }
+
+  /** (Re)start the timer — after a manual advance, so two changes never land close together. */
+  function startPhotoTimer() {
+    clearInterval(photoTimer);
+    photoTimer = null;
+    if (reducedMotion.matches || phoneAway || document.hidden || !desktop.matches) return;
+    photoTimer = setInterval(() => showPhoto(photoIndex + 1), PHOTO_EVERY);
+  }
+
+  const MOVE = { duration: 400, easing: 'cubic-bezier(.2, .8, .2, 1)' };
+
+  /** First paint: the phone slides in from past the right edge, tilted, and straightens. */
+  function phoneEntrance() {
+    if (reducedMotion.matches || !desktop.matches || !els.area.animate) return;
+    els.area.animate([{ translate: 'calc(100% + 80px) 0' }, { translate: '0 0' }], MOVE);
+    els.phone.animate([{ rotate: '7deg' }, { rotate: '0deg' }], MOVE);
+  }
+
+  /** Putting the phone away or back: it tilts on the way and lands straight. */
+  function phoneTilt() {
+    if (reducedMotion.matches || !els.phone.animate) return;
+    els.phone.animate([{ rotate: '0deg' }, { rotate: '7deg', offset: 0.45 }, { rotate: '0deg' }], MOVE);
   }
 
   /* --- Phone demo ----------------------------------------------------------
@@ -806,6 +855,8 @@
   function setPhoneAway(away, moveFocus) {
     phoneAway = away;
     document.body.classList.toggle('phone-away', away);
+    phoneTilt();
+    startPhotoTimer();  // no rotating photos while the phone is tucked away
 
     els.hide.setAttribute('aria-expanded', String(!away));
     els.tab.setAttribute('aria-expanded', String(!away));
@@ -837,6 +888,9 @@
   function handleRouteChange() {
     const route = routeFromHash();
     if (route.path === currentPath) return;
+
+    // Every page change after the first moves the photo card on.
+    if (currentPath) { showPhoto(photoIndex + 1); startPhotoTimer(); }
     currentPath = route.path;
     currentRoute = route.key || '';
 
@@ -863,6 +917,11 @@
   function init() {
     buildNavIcons();
     buildScreens();
+    showPhoto(0);
+    startPhotoTimer();
+    phoneEntrance();
+    document.addEventListener('visibilitychange', startPhotoTimer);
+    reducedMotion.addEventListener('change', startPhotoTimer);
     document.querySelector('.tile--dock').append(icon('home'));
     goToScreen(0);
 

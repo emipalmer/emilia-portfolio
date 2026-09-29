@@ -607,11 +607,12 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
   align-items: center;
   column-gap: calc(8 * var(--art));
   justify-items: center;
-  transition: transform .55s var(--ease);
+  transition: translate .4s cubic-bezier(.2, .8, .2, 1);
 }
 
-/* Away state: slide right, leaving a sliver of the device on screen. */
-body.phone-away .phone-area { transform: translateX(calc(100% - 18px)); }
+/* Away state: slide right, leaving a sliver of the device on screen.
+   The tilt on the way is added by app.js (phoneTilt). */
+body.phone-away .phone-area { translate: calc(100% - 18px) 0; }
 body.phone-away .stage { padding-right: clamp(24px, 6.25vw, 90px); }
 
 /* Everything except the device itself fades out while away. */
@@ -797,11 +798,21 @@ body.phone-away .phone-tab {
   border-radius: calc(24 * var(--scale));
   overflow: hidden;
 }
-.screen__photo img {
-  width: 100%;
+/* The photo card: every photo stacked, one showing; they crossfade. */
+.screen__photo {
+  position: relative;
   height: calc(300 * var(--scale));
-  object-fit: cover;
 }
+.screen__photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity .4s var(--ease);
+}
+.screen__photo img.is-current { opacity: 1; }
 
 .screen__banner {
   display: grid;

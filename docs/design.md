@@ -136,7 +136,9 @@ first role. It pages like the projects list when a screen can't fit all five
 ## 4. Behaviour
 
 **Phone entrance.** Slides in from the right edge tilted 7°, straightening as it
-lands. 400ms, ease-out. The same path in reverse when put away.
+lands. 400ms, ease-out. Putting it away and bringing it back tilt on the way
+and land straight — the Figma away frame has the sliver at 0°. Web Animations
+in `app.js` (`phoneEntrance`, `phoneTilt`); none under reduced motion.
 
 **Phone away.** Slides right leaving ~18px of the device; the content column
 widens. A `‹ phone` handle at the viewport edge brings it back, and clicking the
@@ -152,7 +154,10 @@ All four chevrons (two on the phone, two on the nav toggle) come from one SVG:
 portrait — a fixed face in the corner of every page is a lot. Advances on page
 change, and on a ~6s timer otherwise, 400ms crossfade. Headshot first so the
 landing page is still her. Under `prefers-reduced-motion`: timer off, no
-crossfade, changes only on page change.
+crossfade, changes only on page change. The timer also stops while the phone is
+put away or the tab is in the background, and restarts after each page change
+so two changes never land close together. Only the photo on show is announced
+to screen readers.
 
 **About scroll.** Three steps, matching the `✓ about / 1–3` frames on Scroll
 reveal. It steps like the projects list — dots in the left margin, one wheel or
