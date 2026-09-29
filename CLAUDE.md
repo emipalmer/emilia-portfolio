@@ -15,7 +15,8 @@ Start at the page **Handoff — read me first**. Behaviour and decisions are in
 ## What it is
 
 A static site. No framework, no build step. Hash routing so it works on GitHub
-Pages. The distinguishing idea: a phone drawn on the right of every desktop page
+Pages. Two vendored libraries in `js/vendor/` — GSAP (ScrollTrigger) and Lenis —
+for smooth scrolling and scroll-linked motion; everything works without them. The distinguishing idea: a phone drawn on the right of every desktop page
 is the navigation — its app tiles are the site's pages.
 
 ```
@@ -24,6 +25,7 @@ css/styles.css      all styling; design tokens at the top
 js/icons.js         Lucide icon paths, keyed by name
 js/content.js       ALL copy, projects, links — edit here, not in app.js
 js/app.js           routing, rendering, phone behaviour
+js/vendor/          GSAP, ScrollTrigger, Lenis — versions in js/vendor/README.md
 assets/             resume.pdf; photos/ holds the site photos
 ```
 
