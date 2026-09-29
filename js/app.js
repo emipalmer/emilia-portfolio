@@ -37,6 +37,14 @@
 
   // The nav can only be put away on desktop; below this it is the only navigation.
   const desktop = window.matchMedia('(min-width: 901px)');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // Smooth scrolling and reveals need the vendored libraries; without them
+  // (or with reduced motion) scroll regions still work, just plainly.
+  const hasMotionLibs = Boolean(window.gsap && window.ScrollTrigger && window.Lenis);
+  if (hasMotionLibs) gsap.registerPlugin(ScrollTrigger);
+
+  let scroll = null;     // the live scroll region's handles, torn down on route change
 
   /* --- Small helpers ----------------------------------------------------- */
 
@@ -105,7 +113,7 @@
           li.append(tags);
           ul.append(li);
         });
-        return ul;
+        return scrollRegion(ul, 'projects');
       }
 
       case 'links': {
@@ -129,6 +137,7 @@
     const page = CONTENT.pages[key];
     if (!page) return;
 
+    teardownScroll();
     els.page.textContent = '';
     els.page.dataset.route = key;
     els.page.append(renderHeadline(page.title));
@@ -139,6 +148,8 @@
       if (node) prose.append(node);
     });
     els.page.append(prose);
+    els.page.classList.toggle('page--scrolls', Boolean(prose.querySelector('.scroller')));
+    setupScroll();
 
     els.stamp.textContent = `print(\u201C${page.stamp}\u201D)`;
     document.title = `${page.stamp} — emilia`;
@@ -147,6 +158,106 @@
     els.page.classList.remove('is-entering');
     void els.page.offsetWidth; // force reflow so the animation replays
     els.page.classList.add('is-entering');
+  }
+
+  /* --- Scroll regions ---------------------------------------------------- */
+
+  /**
+   * Wrap long content in a region that scrolls on its own, so the headline and
+   * everything around it stay put. Drawn with a hairline track and a fade.
+   */
+  function scrollRegion(content, label) {
+    const region = el('div', { className: 'scroller' });
+    const viewport = el('div', { className: 'scroller__viewport', attrs: {
+      role: 'region', 'aria-label': label, tabindex: '0'
+    }});
+    const track = el('div', { className: 'scroller__track', attrs: { 'aria-hidden': 'true' } });
+    track.append(el('div', { className: 'scroller__thumb' }));
+    viewport.append(content);
+    region.append(viewport, track);
+    return region;
+  }
+
+  /** Wire up the region on the current page: smoothing, the track, reveals. */
+  function setupScroll() {
+    const viewport = els.page.querySelector('.scroller__viewport');
+    if (!viewport) return;
+
+    // Below the breakpoint the document scrolls, so the region is just a wrapper.
+    const contained = desktop.matches;
+    const motion = hasMotionLibs && !reducedMotion.matches;
+    const s = scroll = { cleanups: [] };
+    viewport.tabIndex = contained ? 0 : -1;
+
+    if (contained && motion) {
+      s.lenis = new Lenis({ wrapper: viewport, content: viewport.firstElementChild, lerp: 0.12 });
+      const tick = time => s.lenis.raf(time * 1000);
+      gsap.ticker.add(tick);
+      s.lenis.on('scroll', ScrollTrigger.update);
+      s.cleanups.push(() => { gsap.ticker.remove(tick); s.lenis.destroy(); });
+    }
+
+    if (contained) s.cleanups.push(bindTrack(viewport, s.lenis));
+    if (motion) s.cleanups.push(revealCards(viewport, contained ? viewport : window));
+  }
+
+  function teardownScroll() {
+    if (!scroll) return;
+    scroll.cleanups.forEach(fn => fn());
+    scroll = null;
+  }
+
+  /** Size and move the thumb to match the list; dragging it scrolls the list. */
+  function bindTrack(viewport, lenis) {
+    const region = viewport.parentElement;
+    const track = region.querySelector('.scroller__track');
+    const thumb = track.firstElementChild;
+    const scrollTo = top => lenis ? lenis.scrollTo(top, { immediate: true }) : (viewport.scrollTop = top);
+
+    function update() {
+      const { scrollTop, scrollHeight, clientHeight } = viewport;
+      const overflow = scrollHeight - clientHeight;
+      const size = Math.max(32, track.clientHeight * clientHeight / scrollHeight);
+      region.classList.toggle('is-scrollable', overflow > 1);
+      region.classList.toggle('is-start', scrollTop <= 1);
+      region.classList.toggle('is-end', scrollTop >= overflow - 1);
+      thumb.style.height = `${size}px`;
+      thumb.style.transform = `translateY(${overflow > 0 ? (track.clientHeight - size) * scrollTop / overflow : 0}px)`;
+    }
+
+    let drag = null;
+    thumb.addEventListener('pointerdown', e => {
+      drag = { y: e.clientY, top: viewport.scrollTop };
+      thumb.setPointerCapture(e.pointerId);
+    });
+    thumb.addEventListener('pointermove', e => {
+      if (!drag) return;
+      const ratio = (viewport.scrollHeight - viewport.clientHeight) / (track.clientHeight - thumb.offsetHeight);
+      scrollTo(drag.top + (e.clientY - drag.y) * ratio);
+    });
+    thumb.addEventListener('pointerup', () => { drag = null; });
+
+    viewport.addEventListener('scroll', update, { passive: true });
+    const resize = new ResizeObserver(update);
+    resize.observe(viewport);
+    resize.observe(viewport.firstElementChild);
+    update();
+    return () => resize.disconnect();
+  }
+
+  /** Cards drift up into place as they scroll into view, a few at a time. */
+  function revealCards(viewport, scroller) {
+    const cards = viewport.querySelectorAll('.card');
+    gsap.set(cards, { opacity: 0, y: 24 });
+    const triggers = ScrollTrigger.batch(cards, {
+      scroller,
+      start: 'top 92%',
+      once: true,
+      onEnter: batch => gsap.to(batch, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', stagger: 0.08 })
+    });
+    // Measure now rather than on window load, which waits for every photo.
+    ScrollTrigger.refresh();
+    return () => { triggers.forEach(t => t.kill()); gsap.killTweensOf(cards); };
   }
 
   /* --- Navigation state -------------------------------------------------- */
@@ -355,7 +466,11 @@
 
     els.navToggle.addEventListener('click', () => setNavAway(!navAway));
     // Crossing below the breakpoint must never leave the only nav hidden.
-    desktop.addEventListener('change', e => { if (!e.matches && navAway) setNavAway(false); });
+    desktop.addEventListener('change', e => {
+      if (!e.matches && navAway) setNavAway(false);
+      teardownScroll();
+      setupScroll();
+    });
 
     els.hide.addEventListener('click', () => setPhoneAway(true, true));
     els.tab.addEventListener('click', () => setPhoneAway(false, true));

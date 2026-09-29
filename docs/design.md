@@ -144,9 +144,16 @@ up brings the text straight back.
 **Projects scroll.** Six projects do not fit a fixed-height page. A clipping
 viewport wraps **the card list alone**: 660×600 at x90/y150 on desktop, 346×610 on
 mobile. Headline, nav, phone, chevrons, hint and stamp all sit outside it.
-Affordances: 3px track at 8% forest, thumb at 28% sized to the visible fraction,
-and a 70px fade to the page colour at the bottom edge. A real scrollbar is
-acceptable if styling one becomes a fight — an invisible scroll region is worse.
+Affordances: 3px track at 8% forest, thumb at 28% sized to the visible fraction
+(draggable, with a wider invisible hit area), a 70px fade to the page colour at
+the bottom edge and a 28px one at the top once the list has moved. Each fade
+disappears at its end of the list.
+
+**Feel.** Lenis smooths wheel scrolling inside the region only; GSAP
+ScrollTrigger drifts cards up into place (24px, 0.6s, staggered) as they enter.
+Both are vendored in `js/vendor/`. Under `prefers-reduced-motion`, or if either
+library fails to load, the region scrolls natively and cards are simply there.
+Below 900px the document scrolls instead: no Lenis, no track, reveals still run.
 
 ---
 

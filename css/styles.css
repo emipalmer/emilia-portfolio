@@ -213,6 +213,79 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 }
 .page:focus { outline: none; }
 
+/* Pages with a scroll region fill the column so the region gets the height. */
+.page--scrolls {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 196px);
+  overflow: visible;
+}
+.page--scrolls .prose { flex: 1; min-height: 0; max-width: none; display: flex; flex-direction: column; }
+
+/* Scroll region — clips the list alone; the headline never moves. */
+.scroller {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: min(660px, 100%);
+}
+
+.scroller__viewport {
+  height: calc(100% + 12px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  /* Room for focus rings inside the clip; the right side clears the track. */
+  padding: 6px 46px 6px 6px;
+  margin: -6px;
+}
+.scroller__viewport::-webkit-scrollbar { display: none; }
+
+/* A half-visible card reads as "more below", not as a clipping bug.
+   A shorter fade at the top softens the edge once the list has moved. */
+.scroller::before,
+.scroller::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 24px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .3s var(--ease);
+}
+.scroller::before { top: 0; height: 28px; background: linear-gradient(to top, transparent, var(--mint)); }
+.scroller::after { bottom: 0; height: 70px; background: linear-gradient(to bottom, transparent, var(--mint)); }
+.scroller.is-scrollable:not(.is-start)::before,
+.scroller.is-scrollable:not(.is-end)::after { opacity: 1; }
+
+.scroller__track {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--forest) 8%, transparent);
+  opacity: 0;
+  transition: opacity .3s var(--ease);
+}
+.scroller.is-scrollable .scroller__track { opacity: 1; }
+
+.scroller__thumb {
+  position: relative;
+  width: 100%;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--forest) 28%, transparent);
+  cursor: grab;
+  touch-action: none;
+  transition: background .2s var(--ease);
+}
+.scroller__thumb:hover,
+.scroller__thumb:active { background: color-mix(in srgb, var(--forest) 45%, transparent); }
+/* A 3px thumb is too thin to grab; widen the hit area, not the drawing. */
+.scroller__thumb::before { content: ''; position: absolute; inset: 0 -8px; }
+
 /* One orchestrated entrance per route change — nothing else animates on load. */
 .page.is-entering { animation: rise .42s var(--ease) both; }
 
@@ -271,7 +344,6 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 .cards {
   display: grid;
   gap: 14px;
-  max-width: 62ch;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -652,6 +724,14 @@ body.phone-away .phone-tab {
   }
 
   .page { max-height: none; overflow: visible; padding: 0; margin: 0; }
+
+  /* The document scrolls here, so the region is just a wrapper. */
+  .page--scrolls { display: block; height: auto; }
+  .scroller { width: auto; }
+  .scroller__viewport { height: auto; overflow: visible; padding: 0; margin: 0; }
+  .scroller::before,
+  .scroller::after,
+  .scroller__track { display: none; }
 
   .topbar { top: 14px; }
 
