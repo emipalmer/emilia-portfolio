@@ -65,6 +65,15 @@ True device size: **393×852 screen** inside a **415×874 body**, 55pt screen ra
 11px rail. On the 1440 artboard it is scaled by **0.72**. Every internal dimension
 derives from `--ph` (its height) so the whole thing scales as one object.
 
+**One scale for the whole device.** Every phone dimension in CSS is a Figma
+device pixel times `--dev`, so the phone shrinks as one object: photo, tiles,
+labels, dock, island and side buttons keep their proportions at every size.
+`--dev` is the smallest of 0.72px, 0.05vw (0.72 at 1440 wide) and what the
+window's height allows, so narrowing *or* shortening the window shrinks it.
+The chevrons, dots, hint and the column reserved for the phone use `--art`
+(one artboard pixel at the same scale). The phone's top is Figma's y112, 35px
+under the nav, and it centres when the window is taller.
+
 This matters beyond fidelity: ESDRS is designed at 393×852, so its screens drop
 into the phone at 1:1 with no scaling.
 
@@ -82,8 +91,11 @@ on top of it.
 ## 3. Routes
 
 ```
-#/home  #/about  #/projects  #/projects/:slug  #/experience  #/skills  #/contact
+#/home  #/about  #/projects  #/projects/:slug  #/experience  #/contact
 ```
+
+Skills was folded into experience; `#/skills` redirects there so old links
+keep working.
 
 Slugs: `esdrs`, `dementia-mr`, `revibe`, `gemini-add-on`, `worklog`, `this-site`.
 
@@ -109,6 +121,11 @@ until the window has room. Below 900px the page scrolls, the image runs full
 width, and ESDRS and ReVibe's phone screens sit in the column as a strip.
 The whole project card links to its detail page; "read more →" shares the tag
 row.
+
+**Skills** live at the end of the experience list — its own page was thin (12
+chips, most already project tags), and recruiters read experience and skills
+together. They render as Figma's Chip: 16px, 9 × 18 padding, tile-b at 45% with
+a sage hairline; labels, not controls — no hover. The nav drops to five items.
 
 **Experience** is one list, work then leadership, each group's label on its
 first role. It pages like the projects list when a screen can't fit all five
@@ -158,9 +175,11 @@ up brings the text straight back.
 
 **Projects paging.** The list never scrolls; it shows a page of cards at a
 time, one column, as wide as the column allows (max 900px). A page holds as many
-cards as fit the height — 3 on a laptop — recalculated on resize, keeping the
-first visible card on screen. Cards are kept short so three fit: name and meta
-share the top row, tags and "read more →" share the bottom one. Headline, nav, phone and stamp
+three cards, at every screen size from a laptop up — recalculated on resize,
+keeping the first visible card on screen. Cards keep Figma's stacked layout
+(name, meta, blurb, tags, read more) at Figma's type sizes with tightened gaps,
+which fits three from about 830px of viewport height. Shorter windows get even
+pages of two rather than a card cut off. Headline, nav, phone and stamp
 never move.
 
 Moving between pages: dots in the left margin (like the about page's), one wheel

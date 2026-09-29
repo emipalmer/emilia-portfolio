@@ -29,6 +29,15 @@
   --rail-2:      #4D4D59;
   --rail-3:      #8A8A99;
   --rail-4:      #383847;
+  --rail-button: #333340;   /* side buttons                */
+
+  /* Phone scale. Every phone dimension is a Figma device pixel times --dev,
+     so the whole device shrinks as one object. --dev follows the viewport's
+     width and height together (0.05vw is the 1440 artboard's 0.72) and never
+     grows past 0.72. --art is one artboard pixel at the same scale, for the
+     controls around the phone and the room reserved for it. */
+  --dev: min(0.72px, 0.05vw, calc((100vh - 200px) / 874));
+  --art: calc(var(--dev) / 0.72);
 
   /* Type — Figma sizes at 1440; the two headlines squeeze down to 390 */
   --fs-hero:   clamp(2.75rem, 1.82rem + 3.81vw, 5.25rem);   /* 84 */
@@ -199,7 +208,7 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
   align-items: center;
   padding: 100px clamp(24px, 6.25vw, 90px) 72px;
   /* Reserves room for the phone; shrinks when it's put away. */
-  padding-right: var(--phone-gutter, 470px);
+  padding-right: calc(480 * var(--art));  /* column ends at Figma's x960 */
   transition: padding-right .5s var(--ease);
 }
 
@@ -362,7 +371,7 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 /* Project cards — outlined, not filled, to stay quiet on the page. */
 .cards {
   display: grid;
-  gap: 14px;
+  gap: 12px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -372,7 +381,7 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
   position: relative;
   border: 1.5px solid color-mix(in srgb, var(--rule) 55%, transparent);
   border-radius: 18px;
-  padding: 14px 22px;
+  padding: 12px 22px;
   background: color-mix(in srgb, var(--white) 42%, transparent);
   transition: background .2s var(--ease), border-color .2s var(--ease), transform .2s var(--ease);
 }
@@ -391,38 +400,30 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
   outline: 2px solid var(--forest);
   outline-offset: 3px;
 }
+/* Figma's stacked card — name, meta, blurb, tags, read more — at Figma's
+   type sizes, with gaps tightened so three fit a laptop screen. */
+.card__name {
+  margin: 0 0 2px;
+  font-size: 1.3125rem; /* 21 */
+  font-weight: 600;
+  line-height: 1.2;
+}
+.card__meta,
 .card__more {
+  margin: 0;
   font-size: .8125rem; /* 13 */
   font-style: italic;
+  line-height: 1.3;
   color: var(--forest-soft);
-  white-space: nowrap;
+}
+.card__meta { margin-bottom: 6px; }
+.card__blurb { margin: 0 0 8px; line-height: 1.45; }
+.card__more {
+  display: block;
+  margin-top: 6px;
   transition: color .2s var(--ease);
 }
 .card:hover .card__more { color: var(--forest); font-weight: 600; }
-
-.card__head,
-.card__foot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 4px 16px;
-}
-.card__head { margin-bottom: 6px; }
-
-.card__name {
-  margin: 0;
-  font-size: 1.3125rem; /* 21 */
-  font-weight: 600;
-  line-height: 1.25;
-}
-.card__meta {
-  margin: 0;
-  font-size: var(--fs-small);
-  font-style: italic;
-  color: var(--forest-soft);
-}
-.card__blurb { margin: 0 0 10px; }
 
 .card__tech {
   display: flex;
@@ -431,7 +432,8 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: var(--fs-small);
+  font-size: .8125rem; /* 13 */
+  line-height: 1.25;
   color: var(--forest-soft);
 }
 .card__tech li {
@@ -471,6 +473,11 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 }
 .role__org { margin: 4px 0 0; font-size: .875rem; font-weight: 500; color: var(--forest-soft); }
 .role__line { margin: 4px 0 0; font-size: var(--fs-small); line-height: 1.55; }
+
+/* Skills close the experience list: labelled rows of chips, no divider. */
+.role--skills { border-bottom: 0; }
+.role--skills .chips__label { margin: 6px 0 8px; font-size: var(--fs-small); color: var(--forest-soft); }
+.role--skills .chips { margin: 0; }
 
 /* Project detail — fills the column; the image gives up height first so the
    write-up always fits. */
@@ -516,6 +523,25 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 .detail__screens { display: none; }
 .detail__tags { margin-top: 2px; }
 
+/* Skills — Figma's Chip: not interactive, so no hover. */
+.chips__label { margin: 0 0 14px; }
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 28px;
+  padding: 0;
+  list-style: none;
+}
+.chip {
+  padding: 8px 17px;  /* 9 x 18 in Figma, less the 1px outline */
+  border: 1px solid color-mix(in srgb, var(--sage) 60%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tile-b) 45%, transparent);
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
 .linklist {
   display: flex;
   flex-wrap: wrap;
@@ -536,24 +562,25 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 .linklist a:hover { background: color-mix(in srgb, var(--tile-b) 45%, transparent); }
 
 /* --- 5. Phone navigator -------------------------------------------------- */
+/* Drawn at true device size (415 x 874 body, 393 x 852 screen) in Figma's
+   device pixels, all multiplied by --dev. Nothing inside uses its own units. */
+
 .phone-area {
   position: absolute;
-  top: 50%;
-  right: clamp(24px, 4vw, 62px);
+  /* Figma's y112 keeps clear of the nav; centred when the window is taller. */
+  top: max(112px, calc(50vh - 437 * var(--dev) - 30 * var(--art)));
+  right: calc(59 * var(--art));  /* chevron glyph 65 from the edge, as in Figma */
   z-index: 3;
   display: grid;
   grid-template-columns: auto auto auto;
   align-items: center;
-  gap: 10px;
+  column-gap: calc(8 * var(--art));
   justify-items: center;
-  transform: translateY(-50%);
   transition: transform .55s var(--ease);
 }
 
 /* Away state: slide right, leaving a sliver of the device on screen. */
-body.phone-away .phone-area {
-  transform: translate(calc(100% - 18px), -50%);
-}
+body.phone-away .phone-area { transform: translateX(calc(100% - 18px)); }
 body.phone-away .stage { padding-right: clamp(24px, 6.25vw, 90px); }
 
 /* Everything except the device itself fades out while away. */
@@ -570,16 +597,16 @@ body.phone-away .phone-hide {
 /* Small control that puts the phone away. */
 .phone-hide {
   position: absolute;
-  top: 8px;
-  right: -8px;
+  top: calc(8 * var(--art));
+  right: calc(-8 * var(--art));
   z-index: 4;
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: calc(30 * var(--art));
+  height: calc(30 * var(--art));
   border-radius: 50%;
   color: var(--forest-soft);
-  font-size: 15px;
+  font-size: calc(15 * var(--art));
   line-height: 1;
   background: color-mix(in srgb, var(--mint) 80%, transparent);
   transition: background .2s var(--ease), opacity .3s var(--ease);
@@ -629,23 +656,21 @@ body.phone-away .phone-tab {
 .chev {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  width: calc(34 * var(--art));
+  height: calc(34 * var(--art));
   border-radius: 50%;
   color: var(--forest-soft);
   transition: background .2s var(--ease), transform .2s var(--ease);
 }
+.chev .chevron { width: calc(22 * var(--art)); height: calc(22 * var(--art)); }
 .chev:hover { background: color-mix(in srgb, var(--tile-b) 45%, transparent); }
 .chev[disabled] { opacity: .25; cursor: default; }
 .chev[disabled]:hover { background: none; }
 
 .phone {
-  /* Height drives everything; the rest follows real device geometry —
-     415x874 body, 393x852 screen, 55pt screen radius. */
-  --ph: min(74vh, 630px, calc(100vh - 230px)); /* last term keeps it clear of the nav */
-  --scale: calc(var(--ph) / 874);
-  width: calc(var(--ph) * 0.4748);
-  height: var(--ph);
+  --scale: var(--dev);
+  width: calc(415 * var(--scale));
+  height: calc(874 * var(--scale));
 }
 
 .phone__bezel {
@@ -659,6 +684,30 @@ body.phone-away .phone-tab {
               color-mix(in srgb, var(--forest) 30%, transparent);
   display: flex;
   flex-direction: column;
+}
+
+/* Side buttons: silent + volume on the left (y168, y232, y314), power on the right (y250). */
+.phone__bezel::before,
+.phone__bezel::after {
+  content: '';
+  position: absolute;
+  width: calc(4 * var(--scale));
+  border-radius: calc(2 * var(--scale));
+}
+.phone__bezel::before {
+  left: calc(-2 * var(--scale));
+  top: calc(168 * var(--scale));
+  height: calc(210 * var(--scale));
+  background: linear-gradient(to bottom,
+    var(--rail-button) 0 calc(32 * var(--scale)), transparent 0 calc(64 * var(--scale)),
+    var(--rail-button) 0 calc(128 * var(--scale)), transparent 0 calc(146 * var(--scale)),
+    var(--rail-button) 0);
+}
+.phone__bezel::after {
+  right: calc(-2 * var(--scale));
+  top: calc(250 * var(--scale));
+  height: calc(104 * var(--scale));
+  background: var(--rail-button);
 }
 
 .phone__notch {
@@ -682,6 +731,18 @@ body.phone-away .phone-tab {
   border-radius: calc(55 * var(--scale));
   background: var(--screen);
 }
+/* Home indicator line, part of the chrome (a demo redraws its own). */
+.phone__screen::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: calc(7 * var(--scale));
+  width: calc(140 * var(--scale));
+  height: calc(5 * var(--scale));
+  border-radius: calc(3 * var(--scale));
+  background: color-mix(in srgb, var(--forest) 35%, transparent);
+  transform: translateX(-50%);
+}
 
 /* The horizontal track: one full-width panel per screen. */
 .screens {
@@ -692,32 +753,32 @@ body.phone-away .phone-tab {
 }
 .screen {
   flex: 0 0 100%;
-  padding: calc(52 * var(--scale)) calc(24 * var(--scale)) calc(10 * var(--scale));
+  padding: calc(76 * var(--scale)) calc(24 * var(--scale)) 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: calc(36 * var(--scale));
   overflow: hidden;
 }
 
 .screen__photo,
 .screen__banner {
-  border-radius: 12px;
-  overflow: hidden;
   flex: 0 0 auto;
+  border-radius: calc(24 * var(--scale));
+  overflow: hidden;
 }
 .screen__photo img {
   width: 100%;
-  height: clamp(120px, 22vh, 190px);
+  height: calc(300 * var(--scale));
   object-fit: cover;
 }
 
 .screen__banner {
   display: grid;
   place-items: center end;
-  height: clamp(52px, 8vh, 72px);
-  padding-right: 16px;
+  height: calc(108 * var(--scale));
+  padding-right: calc(26 * var(--scale));
   color: var(--white);
-  font-size: var(--fs-lead);
+  font-size: calc(38 * var(--scale));
   font-style: italic;
   font-weight: 600;
 }
@@ -728,7 +789,7 @@ body.phone-away .phone-tab {
 .screen__grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: calc(12 * var(--scale)) calc(18 * var(--scale));
   margin: 0;
   padding: 0;
   list-style: none;
@@ -746,13 +807,12 @@ body.phone-away .phone-tab {
   transition: transform .18s var(--ease), box-shadow .18s var(--ease);
 }
 
-/* Icon slot: 42% of the tile, matching the 44/103 ratio in the Figma component. */
+/* Icon slot: 44 of the tile's 103, as in the Figma component. */
 .tile__glyph {
   display: block;
-  width: 42%;
+  width: 42.7%;
 }
 .tile__glyph svg { width: 100%; height: auto; display: block; }
-.tile--dock .tile__glyph { width: 45%; }
 .tile:hover { transform: translateY(-2px); }
 .tile:active { transform: scale(.95); }
 
@@ -762,9 +822,9 @@ body.phone-away .phone-tab {
 
 .tile__label {
   display: block;
-  margin-top: 5px;
-  font-size: .62rem;
-  line-height: 1.2;
+  margin-top: calc(10 * var(--scale));
+  font-size: calc(15 * var(--scale));
+  line-height: calc(18 * var(--scale));
   text-align: center;
   color: var(--forest);
 }
@@ -813,24 +873,28 @@ body.phone-away .phone-tab {
 
 .dock {
   flex: 0 0 auto;
+  height: calc(108 * var(--scale));
   margin: 0 calc(20 * var(--scale)) calc(26 * var(--scale));
-  padding: calc(16 * var(--scale));
   border-radius: calc(34 * var(--scale));
   background: color-mix(in srgb, var(--dock) 62%, transparent);
   display: grid;
   place-items: center;
 }
-.tile--dock { width: 24%; }
+.tile--dock {
+  width: calc(76 * var(--scale));
+  border-radius: calc(22 * var(--scale));
+}
+.tile--dock .tile__glyph { width: 45%; }
 
 .dots {
   grid-column: 1 / -1;
   display: flex;
-  gap: 7px;
-  margin-top: 10px;
+  gap: calc(7 * var(--art));
+  margin-top: calc(12 * var(--art));
 }
 .dots button {
-  width: 7px;
-  height: 7px;
+  width: calc(7 * var(--art));
+  height: calc(7 * var(--art));
   padding: 0;
   border-radius: 50%;
   background: color-mix(in srgb, var(--rule) 40%, transparent);
@@ -842,15 +906,15 @@ body.phone-away .phone-tab {
   grid-column: 1 / -1;
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin: 2px 0 0;
-  font-size: var(--fs-small);
+  gap: calc(6 * var(--art));
+  margin: calc(6 * var(--art)) 0 0;
+  font-size: calc(15 * var(--art));
   font-style: italic;
   color: var(--forest-soft);
 }
 .hint__arrow {
-  width: 54px;
-  height: 26px;
+  width: calc(54 * var(--art));
+  height: calc(26 * var(--art));
   fill: none;
   stroke: currentColor;
   stroke-width: 1.6;

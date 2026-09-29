@@ -41,16 +41,17 @@ assets/             resume.pdf; photos/ holds the site photos
 ## Constraints that are easy to get wrong
 
 - **The page never scrolls on desktop.** `body` is `overflow: hidden`. The
-  projects list pages instead (as many cards as fit, dots to step); the headline
+  projects list pages instead (three cards a page, dots to step); the headline
   never moves. See "Projects paging" in `docs/design.md`.
 - **The phone is drawn at true device size**: 393×852 screen inside a 415×874
-  body, 55pt screen radius, 11px rail, scaled 0.72 on a 1440 artboard. Everything
-  else derives from `--ph`. Do not eyeball these.
+  body, 55pt screen radius, 11px rail, scaled 0.72 on a 1440 artboard. Every
+  dimension is a Figma device pixel times `--dev`, so it scales as one object.
+  Do not eyeball these.
 - **One breakpoint, at 900px.** Below it the phone is hidden and the pill nav
   carries every destination. Everything between 390 and 1440 is the same layout
   squeezed — see the clamp rules in `docs/design.md`.
-- **Skills has no phone-only route.** It is in the nav because the phone can be
-  dismissed and it would otherwise be unreachable.
+- **Every page is in the nav as well as on the phone**, because the phone can be
+  dismissed. Five items: skills lives at the end of experience.
 - **About's scroll changes emphasis, never content.** Every word is in the markup
   at first paint. That is what makes it safe with JS off and under
   `prefers-reduced-motion`.
