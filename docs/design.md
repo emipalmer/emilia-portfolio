@@ -31,7 +31,7 @@ CSS custom property names match the Figma variable names exactly.
 | `--mint` | `#F4FFF0` | page background |
 | `--forest` | `#163808` | body and headline text |
 | `--forest-soft` | `#2C5220` | secondary text |
-| `--sage` | `#B7BFB4` | backdrop panel, hairlines |
+| `--sage` | `#B7BFB4` | hairlines |
 | `--rule` | `#718967` | outlines, nav pill border |
 | `--green` / `--green-deep` | `#61A279` / `#2F6B44` | filled button gradient |
 | `--screen` | `#E5EEE2` | phone screen |

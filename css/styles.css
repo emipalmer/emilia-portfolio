@@ -1,6 +1,6 @@
 /* ============================================================================
    styles.css
-   Organisation: tokens → base → backdrop → nav → content → phone → responsive
+   Organisation: tokens → base → nav → content → phone → responsive
    ========================================================================== */
 
 /* --- 1. Design tokens ---------------------------------------------------- */
@@ -9,7 +9,7 @@
   --mint:        #F4FFF0;   /* page background            */
   --forest:      #163808;   /* body + headline text       */
   --forest-soft: #2C5220;   /* secondary text             */
-  --sage:        #B7BFB4;   /* backdrop panel, hairlines  */
+  --sage:        #B7BFB4;   /* hairlines                  */
   --rule:        #718967;   /* outlines, nav pill border  */
   --green:       #61A279;   /* filled button gradient     */
   --green-deep:  #2F6B44;
@@ -91,24 +91,7 @@ button {
 }
 .skip-link:focus { top: 12px; }
 
-/* --- 3. Backdrop --------------------------------------------------------- */
-.backdrop {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.backdrop__panel {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 26vw;
-  height: 52vh;
-  background: var(--sage);
-}
-
-/* --- 4. Top navigation --------------------------------------------------- */
+/* --- 3. Top navigation --------------------------------------------------- */
 .topbar {
   position: fixed;
   top: 26px;
@@ -203,7 +186,7 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 .chevron--left { transform: rotate(180deg); }
 .chevron--up   { transform: rotate(-90deg); }
 
-/* --- 5. Stage + written content ------------------------------------------ */
+/* --- 4. Stage + written content ------------------------------------------ */
 .stage {
   position: relative;
   z-index: 1;
@@ -284,7 +267,7 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
   font-size: var(--fs-body);
 }
 
-/* Project cards — outlined, not filled, to stay quiet against the backdrop. */
+/* Project cards — outlined, not filled, to stay quiet on the page. */
 .cards {
   display: grid;
   gap: 14px;
@@ -349,7 +332,7 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 }
 .linklist a:hover { background: color-mix(in srgb, var(--tile-b) 45%, transparent); }
 
-/* --- 6. Phone navigator -------------------------------------------------- */
+/* --- 5. Phone navigator -------------------------------------------------- */
 .phone-area {
   position: absolute;
   top: 50%;
@@ -629,7 +612,7 @@ body.phone-away .phone-tab {
   stroke-linecap: round;
 }
 
-/* --- 7. Page stamp ------------------------------------------------------- */
+/* --- 6. Page stamp ------------------------------------------------------- */
 .stamp {
   position: fixed;
   left: clamp(24px, 5vw, 90px);
@@ -643,7 +626,7 @@ body.phone-away .phone-tab {
   user-select: none;
 }
 
-/* --- 8. Responsive ------------------------------------------------------- */
+/* --- 7. Responsive ------------------------------------------------------- */
 
 /* Below 900px the phone is hidden and the page becomes a normal scrolling
    document driven by the pill nav. */
@@ -669,8 +652,6 @@ body.phone-away .phone-tab {
   }
 
   .page { max-height: none; overflow: visible; padding: 0; margin: 0; }
-
-  .backdrop__panel { width: 44vw; height: 22vh; }
 
   .topbar { top: 14px; }
 
