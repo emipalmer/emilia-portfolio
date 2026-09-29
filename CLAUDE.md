@@ -15,8 +15,8 @@ Start at the page **Handoff — read me first**. Behaviour and decisions are in
 ## What it is
 
 A static site. No framework, no build step. Hash routing so it works on GitHub
-Pages. Two vendored libraries in `js/vendor/` — GSAP (ScrollTrigger) and Lenis —
-for smooth scrolling and scroll-linked motion; everything works without them. The distinguishing idea: a phone drawn on the right of every desktop page
+Pages. GSAP and ScrollTrigger are vendored in `js/vendor/` for card motion;
+everything works without them. The distinguishing idea: a phone drawn on the right of every desktop page
 is the navigation — its app tiles are the site's pages.
 
 ```
@@ -25,7 +25,7 @@ css/styles.css      all styling; design tokens at the top
 js/icons.js         Lucide icon paths, keyed by name
 js/content.js       ALL copy, projects, links — edit here, not in app.js
 js/app.js           routing, rendering, phone behaviour
-js/vendor/          GSAP, ScrollTrigger, Lenis — versions in js/vendor/README.md
+js/vendor/          GSAP, ScrollTrigger — versions in js/vendor/README.md
 assets/             resume.pdf; photos/ holds the site photos
 ```
 
@@ -40,9 +40,9 @@ assets/             resume.pdf; photos/ holds the site photos
 
 ## Constraints that are easy to get wrong
 
-- **The page never scrolls on desktop.** `body` is `overflow: hidden`. Where
-  content exceeds the frame (projects, about) a *viewport element wraps the list
-  alone* — not the whole column. The headline must stay put while cards scroll.
+- **The page never scrolls on desktop.** `body` is `overflow: hidden`. The
+  projects list pages instead (as many cards as fit, dots to step); the headline
+  never moves. See "Projects paging" in `docs/design.md`.
 - **The phone is drawn at true device size**: 393×852 screen inside a 415×874
   body, 55pt screen radius, 11px rail, scaled 0.72 on a 1440 artboard. Everything
   else derives from `--ph`. Do not eyeball these.

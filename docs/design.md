@@ -141,19 +141,24 @@ is in the markup from first paint and stays there at 0%, so screen readers,
 JS-off and `prefers-reduced-motion` visitors get the whole page. Scrolling back
 up brings the text straight back.
 
-**Projects scroll.** Six projects do not fit a fixed-height page. A clipping
-viewport wraps **the card list alone**: 660×600 at x90/y150 on desktop, 346×610 on
-mobile. Headline, nav, phone, chevrons, hint and stamp all sit outside it.
-Affordances: 3px track at 8% forest, thumb at 28% sized to the visible fraction
-(draggable, with a wider invisible hit area), a 70px fade to the page colour at
-the bottom edge and a 28px one at the top once the list has moved. Each fade
-disappears at its end of the list.
+**Projects paging.** The list never scrolls; it shows a page of cards at a
+time, one column, as wide as the column allows (max 900px). A page holds as many
+cards as fit the height — 2 on a laptop, 3 on a tall monitor — recalculated on
+resize, keeping the first visible card on screen. Headline, nav, phone and stamp
+never move.
 
-**Feel.** Lenis smooths wheel scrolling inside the region only; GSAP
-ScrollTrigger drifts cards up into place (24px, 0.6s, staggered) as they enter.
-Both are vendored in `js/vendor/`. Under `prefers-reduced-motion`, or if either
-library fails to load, the region scrolls natively and cards are simply there.
-Below 900px the document scrolls instead: no Lenis, no track, reveals still run.
+Moving between pages: dots in the left margin (like the about page's), one wheel
+or trackpad gesture per page (a flick's trailing events don't skip ahead),
+Arrow/Page Up and Down, Home/End, or a vertical swipe. The current cards drift
+out (28px, 0.28s) and the next page's drift in from the same side (0.5s,
+staggered), via GSAP. Under `prefers-reduced-motion`, or if GSAP fails to load,
+pages swap instantly.
+
+Below 900px the document scrolls and every card shows; cards drift up into
+place as they scroll into view (ScrollTrigger).
+
+*Changed from the Figma frame*, which drew a 660px scroll viewport with a
+hairline track and fade. Tried and rejected: it read as a plain scrollbar.
 
 ---
 
