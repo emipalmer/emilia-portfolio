@@ -5,7 +5,7 @@
    - Hash routing (#/about) keeps this a static site: it works on GitHub Pages
      or any host with no server config, and every page is linkable.
    - Nothing scrolls the document on desktop. Changing route swaps content in
-     place; long pages scroll inside their own column.
+     place; long lists show a page at a time instead of scrolling.
    ========================================================================== */
 
 (function () {
@@ -39,12 +39,12 @@
   const desktop = window.matchMedia('(min-width: 901px)');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  // Smooth scrolling and reveals need the vendored libraries; without them
-  // (or with reduced motion) scroll regions still work, just plainly.
-  const hasMotionLibs = Boolean(window.gsap && window.ScrollTrigger && window.Lenis);
-  if (hasMotionLibs) gsap.registerPlugin(ScrollTrigger);
+  // Card motion needs the vendored GSAP; without it (or with reduced motion)
+  // paged lists still work, pages just swap without animating.
+  const hasMotion = Boolean(window.gsap && window.ScrollTrigger);
+  if (hasMotion) gsap.registerPlugin(ScrollTrigger);
 
-  let scroll = null;     // the live scroll region's handles, torn down on route change
+  let paged = null;      // the live paged list's handles, torn down on route change
 
   /* --- Small helpers ----------------------------------------------------- */
 
@@ -113,7 +113,7 @@
           li.append(tags);
           ul.append(li);
         });
-        return scrollRegion(ul, 'projects');
+        return pagedList(ul, 'projects');
       }
 
       case 'links': {
@@ -137,7 +137,7 @@
     const page = CONTENT.pages[key];
     if (!page) return;
 
-    teardownScroll();
+    teardownPager();
     els.page.textContent = '';
     els.page.dataset.route = key;
     els.page.append(renderHeadline(page.title));
@@ -148,8 +148,8 @@
       if (node) prose.append(node);
     });
     els.page.append(prose);
-    els.page.classList.toggle('page--scrolls', Boolean(prose.querySelector('.scroller')));
-    setupScroll();
+    els.page.classList.toggle('page--paged', Boolean(prose.querySelector('.pager')));
+    setupPager();
 
     els.stamp.textContent = `print(\u201C${page.stamp}\u201D)`;
     document.title = `${page.stamp} — emilia`;
@@ -160,104 +160,178 @@
     els.page.classList.add('is-entering');
   }
 
-  /* --- Scroll regions ---------------------------------------------------- */
+  /* --- Paged lists ------------------------------------------------------- */
 
   /**
-   * Wrap long content in a region that scrolls on its own, so the headline and
-   * everything around it stay put. Drawn with a hairline track and a fade.
+   * Long lists show a page of cards at a time instead of scrolling. As many
+   * cards as fit the column's height make a page; dots on the left step
+   * between pages, and a wheel or swipe moves one page per gesture.
    */
-  function scrollRegion(content, label) {
-    const region = el('div', { className: 'scroller' });
-    const viewport = el('div', { className: 'scroller__viewport', attrs: {
-      role: 'region', 'aria-label': label, tabindex: '0'
-    }});
-    const track = el('div', { className: 'scroller__track', attrs: { 'aria-hidden': 'true' } });
-    track.append(el('div', { className: 'scroller__thumb' }));
-    viewport.append(content);
-    region.append(viewport, track);
-    return region;
+  function pagedList(list, label) {
+    const pager = el('div', { className: 'pager', attrs: { role: 'region', 'aria-label': label } });
+    const viewport = el('div', { className: 'pager__viewport', attrs: { tabindex: '0' } });
+    viewport.append(list);
+    pager.append(viewport, el('div', { className: 'pager__dots', attrs: { role: 'group', 'aria-label': `${label} pages` } }));
+    return pager;
   }
 
-  /** Wire up the region on the current page: smoothing, the track, reveals. */
-  function setupScroll() {
-    const viewport = els.page.querySelector('.scroller__viewport');
-    if (!viewport) return;
+  function setupPager() {
+    const pager = els.page.querySelector('.pager');
+    if (!pager) return;
+    const viewport = pager.querySelector('.pager__viewport');
+    const dots = pager.querySelector('.pager__dots');
+    const cards = Array.from(viewport.querySelectorAll('.card'));
+    const animate = hasMotion && !reducedMotion.matches;
+    const cleanups = [];
+    paged = { cleanups };
 
-    // Below the breakpoint the document scrolls, so the region is just a wrapper.
-    const contained = desktop.matches;
-    const motion = hasMotionLibs && !reducedMotion.matches;
-    const s = scroll = { cleanups: [] };
-    viewport.tabIndex = contained ? 0 : -1;
-
-    if (contained && motion) {
-      s.lenis = new Lenis({ wrapper: viewport, content: viewport.firstElementChild, lerp: 0.12 });
-      const tick = time => s.lenis.raf(time * 1000);
-      gsap.ticker.add(tick);
-      s.lenis.on('scroll', ScrollTrigger.update);
-      s.cleanups.push(() => { gsap.ticker.remove(tick); s.lenis.destroy(); });
+    // Below the breakpoint the document scrolls and every card shows.
+    if (!desktop.matches) {
+      viewport.tabIndex = -1;
+      if (animate) cleanups.push(revealOnScroll(cards));
+      return;
     }
 
-    if (contained) s.cleanups.push(bindTrack(viewport, s.lenis));
-    if (motion) s.cleanups.push(revealCards(viewport, contained ? viewport : window));
-  }
+    let pages = [];
+    let current = 0;
+    let busy = false;
 
-  function teardownScroll() {
-    if (!scroll) return;
-    scroll.cleanups.forEach(fn => fn());
-    scroll = null;
-  }
+    /** Pack cards, in order, into pages that fit the viewport's height. */
+    function paginate() {
+      if (busy) return;
+      const first = pages.length ? pages[current][0] : 0;
+      cards.forEach(card => { card.hidden = false; });
+      const style = getComputedStyle(viewport);
+      const room = viewport.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+      const gap = parseFloat(getComputedStyle(cards[0].parentElement).rowGap) || 0;
 
-  /** Size and move the thumb to match the list; dragging it scrolls the list. */
-  function bindTrack(viewport, lenis) {
-    const region = viewport.parentElement;
-    const track = region.querySelector('.scroller__track');
-    const thumb = track.firstElementChild;
-    const scrollTo = top => lenis ? lenis.scrollTo(top, { immediate: true }) : (viewport.scrollTop = top);
+      pages = [];
+      let page = [];
+      let used = 0;
+      cards.forEach((card, i) => {
+        const need = card.offsetHeight + (page.length ? gap : 0);
+        if (page.length && used + need > room) { pages.push(page); page = []; used = 0; }
+        used += card.offsetHeight + (page.length ? gap : 0);
+        page.push(i);
+      });
+      pages.push(page);
 
-    function update() {
-      const { scrollTop, scrollHeight, clientHeight } = viewport;
-      const overflow = scrollHeight - clientHeight;
-      const size = Math.max(32, track.clientHeight * clientHeight / scrollHeight);
-      region.classList.toggle('is-scrollable', overflow > 1);
-      region.classList.toggle('is-start', scrollTop <= 1);
-      region.classList.toggle('is-end', scrollTop >= overflow - 1);
-      thumb.style.height = `${size}px`;
-      thumb.style.transform = `translateY(${overflow > 0 ? (track.clientHeight - size) * scrollTop / overflow : 0}px)`;
+      // Keep the card that was first on screen on screen.
+      current = pages.findIndex(pg => pg.includes(first));
+      renderDots();
+      show(current);
     }
 
-    let drag = null;
-    thumb.addEventListener('pointerdown', e => {
-      drag = { y: e.clientY, top: viewport.scrollTop };
-      thumb.setPointerCapture(e.pointerId);
-    });
-    thumb.addEventListener('pointermove', e => {
-      if (!drag) return;
-      const ratio = (viewport.scrollHeight - viewport.clientHeight) / (track.clientHeight - thumb.offsetHeight);
-      scrollTo(drag.top + (e.clientY - drag.y) * ratio);
-    });
-    thumb.addEventListener('pointerup', () => { drag = null; });
+    function renderDots() {
+      dots.textContent = '';
+      dots.hidden = pages.length < 2;
+      pages.forEach((pg, i) => {
+        const range = pg.length > 1 ? `${pg[0] + 1}–${pg[pg.length - 1] + 1}` : `${pg[0] + 1}`;
+        const dot = el('button', { className: 'pager__dot', attrs: { type: 'button', 'aria-label': `Show projects ${range}` } });
+        dot.addEventListener('click', () => go(i));
+        dots.append(dot);
+      });
+    }
 
-    viewport.addEventListener('scroll', update, { passive: true });
-    const resize = new ResizeObserver(update);
+    function show(i) {
+      cards.forEach((card, k) => { card.hidden = !pages[i].includes(k); });
+      Array.from(dots.children).forEach((dot, k) => {
+        if (k === i) dot.setAttribute('aria-current', 'true');
+        else dot.removeAttribute('aria-current');
+      });
+    }
+
+    /** Current cards drift out, the next page's drift in from the same side. */
+    function go(to) {
+      if (busy || to < 0 || to >= pages.length || to === current) return;
+      const dir = to > current ? 1 : -1;
+      const leaving = pages[current].map(k => cards[k]);
+      const arriving = pages[to].map(k => cards[k]);
+      current = to;
+      if (!animate) { show(current); return; }
+
+      busy = true;
+      gsap.timeline({ onComplete: () => { busy = false; } })
+        .to(leaving, { y: -28 * dir, opacity: 0, duration: 0.28, ease: 'power2.in', stagger: 0.04 })
+        .add(() => show(current))
+        .fromTo(arriving, { y: 28 * dir, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out', stagger: 0.07 });
+    }
+
+    // One page per gesture: trackpads keep firing wheel events after a flick,
+    // so a gesture only counts again once the wheel has been quiet a moment.
+    let spent = false;
+    let quiet = null;
+    function onWheel(e) {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      e.preventDefault();
+      clearTimeout(quiet);
+      quiet = setTimeout(() => { spent = false; }, 220);
+      if (spent || Math.abs(e.deltaY) < 8) return;
+      spent = true;
+      go(current + Math.sign(e.deltaY));
+    }
+
+    function onKey(e) {
+      const step = { ArrowDown: 1, PageDown: 1, ArrowUp: -1, PageUp: -1 }[e.key];
+      if (step) go(current + step);
+      else if (e.key === 'Home') go(0);
+      else if (e.key === 'End') go(pages.length - 1);
+      else return;
+      e.preventDefault();
+    }
+
+    let touchY = null;
+    const onTouchStart = e => { touchY = e.touches[0].clientY; };
+    const onTouchEnd = e => {
+      if (touchY === null) return;
+      const dy = touchY - e.changedTouches[0].clientY;
+      if (Math.abs(dy) > 40) go(current + Math.sign(dy));
+      touchY = null;
+    };
+
+    els.page.addEventListener('wheel', onWheel, { passive: false });
+    pager.addEventListener('keydown', onKey);
+    viewport.addEventListener('touchstart', onTouchStart, { passive: true });
+    viewport.addEventListener('touchend', onTouchEnd);
+    const resize = new ResizeObserver(paginate);
     resize.observe(viewport);
-    resize.observe(viewport.firstElementChild);
-    update();
-    return () => resize.disconnect();
+
+    paginate();
+    if (animate) {
+      gsap.fromTo(pages[current].map(k => cards[k]), { y: 24, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out', stagger: 0.07, delay: 0.1 });
+    }
+
+    cleanups.push(() => {
+      els.page.removeEventListener('wheel', onWheel);
+      clearTimeout(quiet);
+      resize.disconnect();
+      cards.forEach(card => { card.hidden = false; });
+      if (hasMotion) { gsap.killTweensOf(cards); gsap.set(cards, { clearProps: 'opacity,transform' }); }
+    });
   }
 
-  /** Cards drift up into place as they scroll into view, a few at a time. */
-  function revealCards(viewport, scroller) {
-    const cards = viewport.querySelectorAll('.card');
+  function teardownPager() {
+    if (!paged) return;
+    paged.cleanups.forEach(fn => fn());
+    paged = null;
+  }
+
+  /** Mobile: cards drift up into place as the page scrolls to them. */
+  function revealOnScroll(cards) {
     gsap.set(cards, { opacity: 0, y: 24 });
     const triggers = ScrollTrigger.batch(cards, {
-      scroller,
       start: 'top 92%',
       once: true,
       onEnter: batch => gsap.to(batch, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', stagger: 0.08 })
     });
     // Measure now rather than on window load, which waits for every photo.
     ScrollTrigger.refresh();
-    return () => { triggers.forEach(t => t.kill()); gsap.killTweensOf(cards); };
+    return () => {
+      triggers.forEach(t => t.kill());
+      gsap.killTweensOf(cards);
+      gsap.set(cards, { clearProps: 'opacity,transform' });
+    };
   }
 
   /* --- Navigation state -------------------------------------------------- */
@@ -468,8 +542,8 @@
     // Crossing below the breakpoint must never leave the only nav hidden.
     desktop.addEventListener('change', e => {
       if (!e.matches && navAway) setNavAway(false);
-      teardownScroll();
-      setupScroll();
+      teardownPager();
+      setupPager();
     });
 
     els.hide.addEventListener('click', () => setPhoneAway(true, true));

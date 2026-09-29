@@ -1,7 +1,7 @@
 # emilia — portfolio
 
 Emilia (Mia) Palmer's portfolio. A static site — plain HTML, CSS and JavaScript,
-no framework, no build step. Two small vendored libraries handle smooth scrolling. On desktop, a phone drawn beside every page is the
+no framework, no build step. GSAP, vendored, handles the card motion. On desktop, a phone drawn beside every page is the
 navigation: its app tiles are the site's pages.
 
 - **Design (visual spec):** [Figma](https://www.figma.com/design/ahL2NEw9Qre9N7wcH8Ng3o) — start at *Handoff — read me first*
@@ -23,7 +23,7 @@ css/styles.css      all styling; design tokens at the top
 js/icons.js         Lucide icon paths, keyed by name
 js/content.js       all copy, projects and links
 js/app.js           routing, rendering, phone behaviour
-js/vendor/          GSAP, ScrollTrigger and Lenis, copied in (no CDN at runtime)
+js/vendor/          GSAP and ScrollTrigger, copied in (no CDN at runtime)
 assets/             resume.pdf; photos/ holds the site photos
 docs/design.md      design decisions, with the reasoning
 ```
