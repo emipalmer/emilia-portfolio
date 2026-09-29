@@ -157,8 +157,9 @@ crossfade, changes only on page change.
 **About scroll.** Three steps, matching the `✓ about / 1–3` frames on Scroll
 reveal. It steps like the projects list — dots in the left margin, one wheel or
 trackpad gesture per step, arrow and page keys — and GSAP tweens between the
-steps, each photo settling from a slight tilt. The page is anchored at the top
-(headline at y150) so the collage lands exactly where the frame puts it. Text starts oversized and scales down while a photo collage builds over
+steps, each photo settling from a slight tilt. Like home, the copy is centred
+vertically on arrival and holds that top while it shrinks; the collage is
+centred on its own (y176–712 at 1440×860, against the frame's y187–723). Text starts oversized and scales down while a photo collage builds over
 the page; by the last step the collage owns the page and the text has faded out
 completely.
 
@@ -176,7 +177,8 @@ up brings the text straight back.
 **Projects paging.** The list never scrolls; it shows a page of cards at a
 time, one column, as wide as the column allows (max 900px). A page holds as many
 three cards, at every screen size from a laptop up — recalculated on resize,
-keeping the first visible card on screen. Cards keep Figma's stacked layout
+keeping the first visible card on screen. The list is sized to its tallest
+page, so the page stays compact and centres vertically like home. Cards keep Figma's stacked layout
 (name, meta, blurb, tags, read more) at Figma's type sizes with tightened gaps,
 which fits three from about 830px of viewport height. Shorter windows get even
 pages of two rather than a card cut off. Headline, nav, phone and stamp
