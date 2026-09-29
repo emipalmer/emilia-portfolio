@@ -102,6 +102,18 @@ other four detail pages leave the phone alone.
 An unknown hash gets a 404 page (`hmm, nothing here.` plus two ways back), not a
 silent fallback to home. A silent fallback reads as the link being broken.
 
+**Detail pages** follow the Projects — detail frames: `← projects`, title, meta
+(with the award for esdrs), image, write-up, tags. The page never scrolls, so
+the image gives up height first; if it would drop below 120px it steps aside
+until the window has room. Below 900px the page scrolls, the image runs full
+width, and ESDRS and ReVibe's phone screens sit in the column as a strip.
+The whole project card links to its detail page; "read more →" shares the tag
+row.
+
+**Experience** is one list, work then leadership, each group's label on its
+first role. It pages like the projects list when a screen can't fit all five
+(4 + 1 on a laptop) and shows everything, with no dots, when it can.
+
 ---
 
 ## 4. Behaviour

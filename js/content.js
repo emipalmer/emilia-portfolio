@@ -52,11 +52,10 @@ const CONTENT = {
       body: [{ type: 'cards', source: 'projects' }]
     },
 
-    // Roles are in CONTENT.experience below; the page renders them from PR 4.
     experience: {
       stamp: 'experience',
       title: { lead: 'where i’ve ', em: 'worked', tail: '.' },
-      body: []
+      body: [{ type: 'roles' }]
     },
 
     skills: {
@@ -77,13 +76,24 @@ const CONTENT = {
     }
   },
 
+  // Any hash that isn't a page or a project. Not a route of its own.
+  notFound: {
+    stamp: '404',
+    title: { lead: 'hmm, ', em: 'nothing', tail: ' here.' },
+    body: [
+      { type: 'text', text: 'That page doesn\u2019t exist \u2014 the link may be old, or I may have moved it.' },
+      { type: 'links', items: [{ label: 'home', href: '#/home' }, { label: 'projects', href: '#/projects' }] }
+    ]
+  },
+
   /* --- Projects ----------------------------------------------------------
      Order is deliberate: featured first, design-only last. The phone's
      projects screen uses the same order.
        slug   : #/projects/<slug>
        tile   : label on the phone tile      short : one-liner for mobile cards
        meta   : dates, then role(s)          body  : detail-page paragraphs
-       demo   : its images show in the phone on the detail page
+       image  : shown on the detail page     screens: shown in the phone on
+                                                      the detail page (1:1)
   ----------------------------------------------------------------------- */
   projects: [
     {
@@ -92,6 +102,7 @@ const CONTENT = {
       blurb: 'Log what you did each day; it turns those notes into resume bullets, STAR stories and a skills list when you need them.',
       short: 'Daily notes become resume bullets.',
       tags: ['Next.js', 'Claude API', 'Figma'],
+      image: { src: 'assets/projects/worklog.png', alt: 'WorkLog: daily log entries beside a resume editor with a live preview' },
       body: [
         'You do good work and then can’t remember any of it. At review time, or when updating a resume, you are reconstructing months from memory and the specifics of your impact are gone.',
         'WorkLog is a daily log that pays off later. You write a line or two about what you did, and it turns those entries into resume bullets, STAR stories or a skills list. The resume editor sits beside a live preview, so a bullet goes from log to document without retyping.'
@@ -104,7 +115,12 @@ const CONTENT = {
       blurb: 'A social mobile app promoting sustainability within fashion.',
       short: 'Social app for sustainable fashion.',
       tags: ['UI/UX', 'Mobile', 'Figma'],
-      demo: true,
+      image: { src: 'assets/projects/esdrs.jpg', alt: 'Emilia and two teammates in dark blazers' },
+      screens: [
+        { src: 'assets/projects/esdrs-screen-a.png', alt: 'esdrs profile: your closet of pieces to lend, with borrow counts' },
+        { src: 'assets/projects/esdrs-screen-b.png', alt: 'esdrs event board for Penn State vs. Ohio State, showing what people are wearing' },
+        { src: 'assets/projects/esdrs-screen-c.png', alt: 'esdrs browse: search closets, filter by occasion, pieces from friends\u2019 closets' }
+      ],
       body: [
         'More than two in five college students buy clothes for an event they’ll wear once. The workaround — texting friends to ask what they own — is a free-for-all where nobody knows what anyone has.',
         'esdrs is an invite-only app for borrowing clothes from people you already know. Access runs through the social graph rather than a public marketplace, so browsing extends to friends-of-friends, and joining a sorority or club unlocks those closets past the normal limit.',
@@ -118,6 +134,7 @@ const CONTENT = {
       blurb: 'A mixed reality dementia-care training module for Meta Quest, built for instructors and students.',
       short: 'Mixed reality training on Meta Quest.',
       tags: ['Unity', 'Photon Fusion', 'Meta Quest'],
+      image: { src: 'assets/projects/dementia.jpg', alt: 'Emilia and her capstone teammates beside their project poster at the showcase' },
       body: [
         'A mixed reality dementia-care training module for Meta Quest, supporting instructor and student roles across two headsets. My capstone project at Penn State University.',
         'I built the multiplayer layer with Photon Fusion, redesigned the session lobby and in-headset UI to fix host/client connection and scene transition bugs, and added a synced voting system so students choose dialogue while the instructor controls how the scenario progresses.'
@@ -148,7 +165,12 @@ const CONTENT = {
       blurb: 'A secondhand clothing app where an AI recommendation system learns your taste as you swipe. I designed the interface in Figma.',
       short: 'Secondhand shopping that learns your taste.',
       tags: ['UI/UX', 'Figma'],
-      demo: true,
+      image: { src: 'assets/projects/revibe-pitch.jpg', alt: 'ReVibe pitch graphic: app screens of secondhand clothing beside the ReVibe logo' },
+      screens: [
+        { src: 'assets/projects/revibe-swipe.jpg',  alt: 'ReVibe swipe screen: a red off-shoulder Hollister top, size S, $9.99' },
+        { src: 'assets/projects/revibe-browse.jpg', alt: 'ReVibe browse grid of secondhand tops' },
+        { src: 'assets/projects/revibe-item.jpg',   alt: 'ReVibe item detail: condition, material, fit notes and styling tags' }
+      ],
       body: [
         'Secondhand shopping is good for the planet and bad as an experience — endless racks, no sense of what suits you, nothing that learns. ReVibe makes it feel like browsing rather than searching: you swipe through individual pieces and a recommendation system learns your taste as you go.',
         'I designed the cross-platform interface in Figma! With this I was a finalist for the Nittany Entrepreneurship Society Pitch Competition in 2025, competing against 5 other teams for $5,000.'
