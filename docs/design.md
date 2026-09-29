@@ -126,7 +126,10 @@ landing page is still her. Under `prefers-reduced-motion`: timer off, no
 crossfade, changes only on page change.
 
 **About scroll.** Three steps, matching the `✓ about / 1–3` frames on Scroll
-reveal. Text starts oversized and scales down while a photo collage builds over
+reveal. It steps like the projects list — dots in the left margin, one wheel or
+trackpad gesture per step, arrow and page keys — and GSAP tweens between the
+steps, each photo settling from a slight tilt. The page is anchored at the top
+(headline at y150) so the collage lands exactly where the frame puts it. Text starts oversized and scales down while a photo collage builds over
 the page; by the last step the collage owns the page and the text has faded out
 completely.
 
@@ -157,6 +160,9 @@ pages swap instantly.
 
 Below 900px the document scrolls and every card shows; cards drift up into
 place as they scroll into view (ScrollTrigger).
+
+Step dots are forest at 15%, 50% for the current step (from the about frames),
+24px hit areas.
 
 *Changed from the Figma frame*, which drew a 660px scroll viewport with a
 hairline track and fade. Tried and rejected: it read as a plain scrollbar.
@@ -220,7 +226,7 @@ Tap targets are 44px minimum.
 One breakpoint only, at 900. Everything else is the same layout squeezed.
 
 - content column: `clamp(420px, 42vw, 640px)`
-- gutters: `clamp(24px, 5vw, 90px)`
+- gutters: `clamp(24px, 6.25vw, 90px)`
 - projects viewport: height from available space, not a fixed 600
 - phone: already fluid, sized from `vh`
 

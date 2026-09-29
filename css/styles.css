@@ -194,7 +194,7 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  padding: 100px clamp(24px, 5vw, 90px) 72px;
+  padding: 100px clamp(24px, 6.25vw, 90px) 72px;
   /* Reserves room for the phone; shrinks when it's put away. */
   padding-right: var(--phone-gutter, 470px);
   transition: padding-right .5s var(--ease);
@@ -238,33 +238,71 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 }
 .card[hidden] { display: none; }
 
-/* Page dots sit in the left margin, like the about page's. */
-.pager__dots {
+/* Step dots — the left-margin pager shared by projects and about. */
+.step-dots {
   position: absolute;
   top: 50%;
-  left: calc(-0.4 * clamp(24px, 5vw, 90px) - 12px);
+  left: calc(-0.4 * clamp(24px, 6.25vw, 90px) - 12px);
   display: flex;
   flex-direction: column;
   transform: translateY(-50%);
 }
-.pager__dots[hidden] { display: none; }
-.pager__dot {
+.step-dots[hidden] { display: none; }
+.step-dot {
   display: grid;
   place-items: center;
   width: 24px;
   height: 24px;
   padding: 0;
 }
-.pager__dot::before {
+.step-dot::before {
   content: '';
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--rule) 40%, transparent);
+  background: color-mix(in srgb, var(--forest) 15%, transparent);
   transition: background .2s var(--ease), transform .2s var(--ease);
 }
-.pager__dot:hover::before { background: color-mix(in srgb, var(--rule) 70%, transparent); }
-.pager__dot[aria-current='true']::before { background: var(--rule); transform: scale(1.2); }
+.step-dot:hover::before { background: color-mix(in srgb, var(--forest) 30%, transparent); }
+.step-dot[aria-current='true']::before { background: color-mix(in srgb, var(--forest) 50%, transparent); transform: scale(1.2); }
+
+/* About — anchored where Figma puts it (headline at y150) so the collage lands
+   in the same place; the copy shrinks and fades in steps (app.js). */
+.content:has(> .page--collage) { align-self: start; }
+.page--collage {
+  position: relative;
+  margin-top: 44px;
+  overflow: visible;
+}
+.page--collage .prose { max-width: 701px; }
+.page--collage .prose > p { font-size: var(--fs-lead); }
+
+/* Collage — laid out in Figma frame units: 912 x 536 from x82, y187. */
+.collage {
+  position: absolute;
+  /* y187 against the headline's y150, x82 against the column's x90,
+     plus the page's 6px focus-ring padding. */
+  top: 43px;
+  left: -2px;
+  width: min(912px, calc(100% + 32px));
+  aspect-ratio: 912 / 536;
+  pointer-events: none;
+}
+.collage__photo {
+  position: absolute;
+  left: calc(var(--x) / 912 * 100% - 82 / 912 * 100%);
+  top: calc(var(--y) / 536 * 100% - 187 / 536 * 100%);
+  width: calc(var(--w) / 912 * 100%);
+  height: calc(var(--h) / 536 * 100%);
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 12px 28px -16px color-mix(in srgb, var(--forest) 55%, transparent);
+  opacity: 0;
+}
+.collage > .step-dots {
+  pointer-events: auto;
+  left: calc(-0.4 * clamp(24px, 6.25vw, 90px) - 4px);
+}
 
 /* One orchestrated entrance per route change — nothing else animates on load. */
 .page.is-entering { animation: rise .42s var(--ease) both; }
@@ -414,7 +452,7 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 body.phone-away .phone-area {
   transform: translate(calc(100% - 18px), -50%);
 }
-body.phone-away .stage { padding-right: clamp(24px, 5vw, 90px); }
+body.phone-away .stage { padding-right: clamp(24px, 6.25vw, 90px); }
 
 /* Everything except the device itself fades out while away. */
 body.phone-away .chev,
@@ -678,7 +716,7 @@ body.phone-away .phone-tab {
 /* --- 6. Page stamp ------------------------------------------------------- */
 .stamp {
   position: fixed;
-  left: clamp(24px, 5vw, 90px);
+  left: clamp(24px, 6.25vw, 90px);
   bottom: 34px;
   z-index: 1;
   margin: 0;
@@ -719,7 +757,21 @@ body.phone-away .phone-tab {
   /* The document scrolls here and every card shows. */
   .page--paged { display: block; height: auto; }
   .pager__viewport { height: auto; overflow: visible; padding: 0; margin: 0; }
-  .pager__dots { display: none; }
+  .step-dots { display: none; }
+
+  /* About: the copy stays full size; the collage becomes a grid beneath it. */
+  .page--collage { margin-top: 0; }
+  .page--collage .prose > p { font-size: var(--fs-body); }
+  .collage {
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: auto;
+    aspect-ratio: auto;
+    margin-top: 28px;
+  }
+  .collage__photo { position: static; width: 100%; height: auto; aspect-ratio: 4 / 3; opacity: 1; }
 
   .topbar { top: 14px; }
 
