@@ -226,23 +226,16 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 .page:focus { outline: none; }
 
 /* Pages with a paged list fill the column so the list gets the height. */
-.page--paged {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 196px);
-  overflow: visible;
-}
-.page--paged .prose { flex: 1; min-height: 0; max-width: none; display: flex; flex-direction: column; }
+.page--paged { overflow: visible; }
+.page--paged .prose { max-width: none; }
 
 /* Paged list — a page of cards at a time, as wide as the column allows. */
 .pager {
   position: relative;
-  flex: 1;
-  min-height: 0;
   max-width: 900px;
 }
 .pager__viewport {
-  height: calc(100% + 12px);
+  /* Height is set to the tallest page by app.js. */
   overflow: hidden;
   /* Room for focus rings and card borders inside the clip. */
   padding: 6px;
@@ -278,23 +271,30 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 
 /* About — anchored where Figma puts it (headline at y150) so the collage lands
    in the same place; the copy shrinks and fades in steps (app.js). */
-.content:has(> .page--collage) { align-self: start; }
+/* About — the copy and the collage each centre in the column, like home: the
+   copy between two flexible rows, the collage across all of them. app.js then
+   holds the copy's top while it shrinks, so it never drifts. */
 .page--collage {
-  position: relative;
-  margin-top: 44px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 1fr auto auto 1fr;
+  height: calc(100vh - 196px);
   overflow: visible;
 }
+.page--collage > .headline { grid-area: 2 / 1; }
+.page--collage > .prose { grid-area: 3 / 1; }
+.page--collage > .collage { grid-area: 1 / 1 / 5 / 2; align-self: center; }
 .page--collage .prose { max-width: 701px; }
 .page--collage .prose > p { font-size: var(--fs-lead); }
 
 /* Collage — laid out in Figma frame units: 912 x 536 from x82, y187. */
 .collage {
-  position: absolute;
-  /* y187 against the headline's y150, x82 against the column's x90,
-     plus the page's 6px focus-ring padding. */
-  top: 43px;
-  left: -2px;
-  width: min(912px, calc(100% + 32px));
+  position: relative;
+  /* x82 against the column's x90. */
+  margin-left: -8px;
+  /* 912 wide (x82 to x994, past the column's x960) at most; less when the
+     column narrows or the window is too short for its 536 height. */
+  width: min(912px, calc(100% + 50px), calc((100vh - 220px) * 912 / 536));
   aspect-ratio: 912 / 536;
   pointer-events: none;
 }
@@ -968,7 +968,7 @@ body.phone-away .phone-tab {
   .step-dots { display: none; }
 
   /* About: the copy stays full size; the collage becomes a grid beneath it. */
-  .page--collage { margin-top: 0; }
+  .page--collage { display: block; height: auto; }
   .page--collage .prose > p { font-size: var(--fs-body); }
   .collage {
     position: static;
@@ -977,7 +977,7 @@ body.phone-away .phone-tab {
     gap: 12px;
     width: auto;
     aspect-ratio: auto;
-    margin-top: 28px;
+    margin: 28px 0 0;
   }
   .collage__photo { position: static; width: 100%; height: auto; aspect-ratio: 4 / 3; opacity: 1; }
 

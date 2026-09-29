@@ -215,7 +215,9 @@
     }
 
     els.page.classList.toggle('page--paged', Boolean(els.page.querySelector('.pager')));
-    els.page.classList.toggle('page--collage', Boolean(els.page.querySelector('.collage')));
+    const collageNode = els.page.querySelector('.collage');
+    if (collageNode) els.page.append(collageNode);  // shares the page's grid with the copy
+    els.page.classList.toggle('page--collage', Boolean(collageNode));
     els.page.classList.toggle('page--detail', Boolean(route.project));
     setupSteps();
 
@@ -394,8 +396,12 @@
       if (busy) return;
       const first = pages.length ? pages[current][0] : 0;
       cards.forEach(card => { card.hidden = false; });
-      const style = getComputedStyle(viewport);
-      const room = viewport.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+      // Room is what the page may grow to, less the headline; the viewport is
+      // then sized to the tallest page, so the page stays compact and centres.
+      const pageStyle = getComputedStyle(els.page);
+      const headline = els.page.querySelector('.headline');
+      const room = parseFloat(pageStyle.maxHeight) - parseFloat(pageStyle.paddingTop) - parseFloat(pageStyle.paddingBottom)
+        - headline.offsetHeight - parseFloat(getComputedStyle(headline).marginBottom);
       const gap = parseFloat(getComputedStyle(cards[0].parentElement).rowGap) || 0;
 
       const heights = cards.map(card => card.offsetHeight);
@@ -418,6 +424,9 @@
         });
         pages.push(page);
       }
+
+      const tallest = Math.max(...pages.map(pg => pg.reduce((sum, k) => sum + heights[k], 0) + gap * (pg.length - 1)));
+      viewport.style.height = `${tallest + 12}px`;  // + the focus-ring padding
 
       // Keep the card that was first on screen on screen.
       current = pages.findIndex(pg => pg.includes(first));
@@ -446,8 +455,10 @@
         .fromTo(arriving, { y: 28 * dir, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out', stagger: 0.07 });
     }
 
-    const resize = new ResizeObserver(paginate);
-    resize.observe(viewport);
+    // Measure again once the web font is in: the fallback wraps differently.
+    let alive = true;
+    window.addEventListener('resize', paginate);
+    if (document.fonts) document.fonts.ready.then(() => { if (alive) paginate(); });
     paginate();
     if (animate) {
       gsap.fromTo(pages[current].map(k => cards[k]), { y: 24, opacity: 0 },
@@ -456,7 +467,9 @@
 
     cleanups.push(bindStepInput(d => go(current + d), go, () => pages.length));
     cleanups.push(() => {
-      resize.disconnect();
+      alive = false;
+      window.removeEventListener('resize', paginate);
+      viewport.style.height = '';
       cards.forEach(card => { card.hidden = false; });
       if (hasMotion) { gsap.killTweensOf(cards); gsap.set(cards, { clearProps: 'opacity,transform' }); }
     });
@@ -526,10 +539,24 @@
       else tl.seek(`step${to}`);
     }
 
+    // The copy centres on arrival; hold that top while it shrinks so it doesn't drift.
+    function holdTop() {
+      if (current !== 0) return;
+      els.page.style.gridTemplateRows = '';
+      const top = headline.getBoundingClientRect().top - els.page.getBoundingClientRect().top
+        - parseFloat(getComputedStyle(els.page).paddingTop);
+      els.page.style.gridTemplateRows = `${top}px auto auto 1fr`;
+    }
+    holdTop();
+    window.addEventListener('resize', holdTop);
+    if (document.fonts) document.fonts.ready.then(holdTop);
+
     renderDots(rail, ['About: arrival', 'About: collage arrives', 'About: collage'], go);
     markDot(rail, current);
     cleanups.push(bindStepInput(d => go(current + d), go, () => ABOUT_STEPS.length));
     cleanups.push(() => {
+      window.removeEventListener('resize', holdTop);
+      els.page.style.gridTemplateRows = '';
       tl.kill();
       gsap.set([headline, aside, ...paras, ...photos], { clearProps: 'all' });
     });
