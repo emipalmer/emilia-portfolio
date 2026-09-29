@@ -65,6 +65,15 @@ True device size: **393×852 screen** inside a **415×874 body**, 55pt screen ra
 11px rail. On the 1440 artboard it is scaled by **0.72**. Every internal dimension
 derives from `--ph` (its height) so the whole thing scales as one object.
 
+**One scale for the whole device.** Every phone dimension in CSS is a Figma
+device pixel times `--dev`, so the phone shrinks as one object: photo, tiles,
+labels, dock, island and side buttons keep their proportions at every size.
+`--dev` is the smallest of 0.72px, 0.05vw (0.72 at 1440 wide) and what the
+window's height allows, so narrowing *or* shortening the window shrinks it.
+The chevrons, dots, hint and the column reserved for the phone use `--art`
+(one artboard pixel at the same scale). The phone's top is Figma's y112, 35px
+under the nav, and it centres when the window is taller.
+
 This matters beyond fidelity: ESDRS is designed at 393×852, so its screens drop
 into the phone at 1:1 with no scaling.
 
