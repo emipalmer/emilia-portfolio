@@ -474,6 +474,11 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 .role__org { margin: 4px 0 0; font-size: .875rem; font-weight: 500; color: var(--forest-soft); }
 .role__line { margin: 4px 0 0; font-size: var(--fs-small); line-height: 1.55; }
 
+/* Skills close the experience list: labelled rows of chips, no divider. */
+.role--skills { border-bottom: 0; }
+.role--skills .chips__label { margin: 6px 0 8px; font-size: var(--fs-small); color: var(--forest-soft); }
+.role--skills .chips { margin: 0; }
+
 /* Project detail — fills the column; the image gives up height first so the
    write-up always fits. */
 .page--detail {

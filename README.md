@@ -41,7 +41,7 @@ docs/design.md      design decisions, with the reasoning
 
 Hash routing, so every page has a real link and it works on any static host:
 `#/home`, `#/about`, `#/projects`, `#/projects/:slug`, `#/experience`,
-`#/skills`, `#/contact`.
+`#/contact`. Anything else gets a 404 page; old `#/skills` links go to experience.
 
 ## Deploying
 

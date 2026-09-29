@@ -58,14 +58,6 @@ const CONTENT = {
       body: [{ type: 'roles' }]
     },
 
-    skills: {
-      stamp: 'skills',
-      title: { lead: 'what i ', em: 'work with', tail: '.' },
-      body: [
-        { type: 'chips', label: 'languages:', items: ['Python', 'Java', 'JavaScript', 'TypeScript', 'C', 'SQL'] },
-        { type: 'chips', label: 'tools:', items: ['React', 'AWS', 'Docker', 'MongoDB', 'Git', 'Linux'] }
-      ]
-    },
 
     contact: {
       stamp: 'contact',
@@ -178,6 +170,14 @@ const CONTENT = {
     }
   ],
 
+  /* --- Skills ----------------------------------------------------------
+     Shown as chips at the end of the experience page.
+  ----------------------------------------------------------------------- */
+  skills: [
+    { label: 'languages', items: ['Python', 'Java', 'JavaScript', 'TypeScript', 'C', 'SQL'] },
+    { label: 'tools',     items: ['React', 'AWS', 'Docker', 'MongoDB', 'Git', 'Linux'] }
+  ],
+
   /* --- Experience --------------------------------------------------------
      Two groups, work then leadership. `short` is the mobile line.
   ----------------------------------------------------------------------- */
@@ -257,9 +257,8 @@ const CONTENT = {
       tiles: [
         { label: 'about',      icon: 'about',      route: '#/about' },
         { label: 'projects',   icon: 'projects',   route: '#/projects' },
-        { label: 'skills',     icon: 'skills',     route: '#/skills' },
-        { label: 'contact',    icon: 'contact',    route: '#/contact' },
-        { label: 'experience', icon: 'experience', route: '#/experience' }
+        { label: 'experience', icon: 'experience', route: '#/experience' },
+        { label: 'contact',    icon: 'contact',    route: '#/contact' }
       ]
     },
     {

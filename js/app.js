@@ -66,7 +66,12 @@
    * or neither — which gets the 404 page rather than a silent fallback.
    */
   function routeFromHash() {
-    const path = (location.hash || '').replace(/^#\/?/, '').trim() || DEFAULT_ROUTE;
+    let path = (location.hash || '').replace(/^#\/?/, '').trim() || DEFAULT_ROUTE;
+    // Skills folded into experience; old links land there.
+    if (path === 'skills') {
+      history.replaceState(null, '', '#/experience');
+      path = 'experience';
+    }
     const [key, slug] = path.split('/');
     if (key === 'projects' && slug) {
       const project = CONTENT.projects.find(p => p.slug === slug);
@@ -159,6 +164,13 @@
             ul.append(li);
           });
         });
+        // Skills close the list as one more item, so they page with the roles.
+        const skills = el('li', { className: 'role role--skills' });
+        skills.append(el('h2', { className: 'roles__label', text: 'skills' }));
+        CONTENT.skills.forEach(group => {
+          skills.append(renderBlock({ type: 'chips', label: `${group.label}:`, items: group.items }));
+        });
+        ul.append(skills);
         return pagedList(ul, 'experience');
       }
 

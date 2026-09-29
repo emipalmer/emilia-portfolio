@@ -91,8 +91,11 @@ on top of it.
 ## 3. Routes
 
 ```
-#/home  #/about  #/projects  #/projects/:slug  #/experience  #/skills  #/contact
+#/home  #/about  #/projects  #/projects/:slug  #/experience  #/contact
 ```
+
+Skills was folded into experience; `#/skills` redirects there so old links
+keep working.
 
 Slugs: `esdrs`, `dementia-mr`, `revibe`, `gemini-add-on`, `worklog`, `this-site`.
 
@@ -119,8 +122,10 @@ width, and ESDRS and ReVibe's phone screens sit in the column as a strip.
 The whole project card links to its detail page; "read more →" shares the tag
 row.
 
-**Skills** render as Figma's Chip: 16px, 9 × 18 padding, tile-b at 45% with a
-sage hairline. They are labels, not controls — no hover.
+**Skills** live at the end of the experience list — its own page was thin (12
+chips, most already project tags), and recruiters read experience and skills
+together. They render as Figma's Chip: 16px, 9 × 18 padding, tile-b at 45% with
+a sage hairline; labels, not controls — no hover. The nav drops to five items.
 
 **Experience** is one list, work then leadership, each group's label on its
 first role. It pages like the projects list when a screen can't fit all five
