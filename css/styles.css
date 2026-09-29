@@ -303,7 +303,7 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 }
 
 .prose { max-width: 54ch; }
-.prose p { margin: 0 0 18px; }
+.prose > p { margin: 0 0 18px; }
 
 .bullets {
   margin: 0 0 18px;
@@ -332,17 +332,28 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 .card {
   border: 1.5px solid color-mix(in srgb, var(--rule) 55%, transparent);
   border-radius: 18px;
-  padding: 18px 22px;
+  padding: 14px 22px;
   background: color-mix(in srgb, var(--white) 42%, transparent);
 }
 
+.card__head,
+.card__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+.card__head { margin-bottom: 6px; }
+
 .card__name {
-  margin: 0 0 6px;
+  margin: 0;
   font-size: 1.3125rem; /* 21 */
   font-weight: 600;
+  line-height: 1.25;
 }
 .card__meta {
-  margin: 0 0 8px;
+  margin: 0;
   font-size: var(--fs-small);
   font-style: italic;
   color: var(--forest-soft);

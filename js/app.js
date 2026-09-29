@@ -104,13 +104,20 @@
         const ul = el('ul', { className: 'cards' });
         CONTENT[block.source].forEach(item => {
           const li = el('li', { className: 'card' });
-          li.append(el('h2', { className: 'card__name', text: item.name }));
-          li.append(el('p', { className: 'card__meta', text: item.meta.join('  \u00b7  ') }));
+
+          // Name and meta share a row, tags and the link share another, so a
+          // card stays short enough for three to fit a laptop screen.
+          const head = el('div', { className: 'card__head' });
+          head.append(el('h2', { className: 'card__name', text: item.name }));
+          head.append(el('p', { className: 'card__meta', text: item.meta.join('  \u00b7  ') }));
+          li.append(head);
           li.append(el('p', { className: 'card__blurb', text: item.blurb }));
 
           const tags = el('ul', { className: 'card__tech' });
           item.tags.forEach(t => tags.append(el('li', { text: t })));
-          li.append(tags);
+          const foot = el('div', { className: 'card__foot' });
+          foot.append(tags);
+          li.append(foot);
           ul.append(li);
         });
         return pagedList(ul, 'projects');

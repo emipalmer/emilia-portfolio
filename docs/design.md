@@ -143,8 +143,9 @@ up brings the text straight back.
 
 **Projects paging.** The list never scrolls; it shows a page of cards at a
 time, one column, as wide as the column allows (max 900px). A page holds as many
-cards as fit the height — 2 on a laptop, 3 on a tall monitor — recalculated on
-resize, keeping the first visible card on screen. Headline, nav, phone and stamp
+cards as fit the height — 3 on a laptop — recalculated on resize, keeping the
+first visible card on screen. Cards are kept short so three fit: name and meta
+share the top row, tags and "read more →" share the bottom one. Headline, nav, phone and stamp
 never move.
 
 Moving between pages: dots in the left margin (like the about page's), one wheel
