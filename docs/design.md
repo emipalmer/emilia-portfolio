@@ -74,6 +74,10 @@ The chevrons, dots, hint and the column reserved for the phone use `--art`
 (one artboard pixel at the same scale). The phone's top is Figma's y112, 35px
 under the nav, and it centres when the window is taller.
 
+The "use this to navigate :)" hint sits under the dots. *Added in code*: a hand
+drawn arrow after the text that curves up into the bottom of the phone. It must
+point at the device; an earlier version trailed off down and away from it.
+
 This matters beyond fidelity: ESDRS is designed at 393×852, so its screens drop
 into the phone at 1:1 with no scaling.
 
