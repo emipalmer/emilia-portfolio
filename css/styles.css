@@ -155,6 +155,10 @@ button {
   background: color-mix(in srgb, var(--tile-b) 30%, transparent);
 }
 .pill__link[aria-current='page'] { font-weight: 600; }
+.pill__icon { display: none; }  /* the mobile pill shows icons; see the 900px breakpoint */
+
+/* Text with a desktop and a mobile version (twoLengths in app.js). */
+.only-narrow { display: none; }
 
 /* The marker is absolutely positioned by JS, so it can slide between links. */
 .pill__marker {
@@ -541,6 +545,33 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
   font-size: 1rem;
   line-height: 1.2;
 }
+
+/* Home's resume and github — Figma's action chip: icon + label, tinted.
+   Unlike skill chips these are links, so hover deepens the tint. */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 20px 9px 16px;
+  border: 1px solid color-mix(in srgb, var(--sage) 70%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tile-b) 45%, transparent);
+  font-size: 1rem;
+  text-decoration: none;
+  transition: background .2s var(--ease), transform .2s var(--ease);
+}
+.action:hover { background: color-mix(in srgb, var(--tile-b) 75%, transparent); }
+.action:active { transform: scale(.98); }
+.action__icon { display: block; width: 15px; height: 15px; }
+.action__icon svg { width: 100%; height: 100%; display: block; stroke-width: 1.8; }
 
 .linklist {
   display: flex;
@@ -950,10 +981,23 @@ body.phone-away .phone-tab {
     height: auto;
     min-height: 100%;
     align-items: start;
-    /* Clears the nav, which stacks into two rows here. */
-    padding: 178px 22px 72px;
+    /* Clears the 44px nav pill at y16, as in the Mobile — 390 frames. */
+    padding: 92px 22px 72px;
     padding-right: 22px;
   }
+
+  .only-wide { display: none; }
+  .only-narrow { display: inline; }
+
+  /* Home sits in the middle of the screen, as in the Mobile — 390 frame. */
+  .stage:has(.page[data-route='home']) { align-items: center; }
+  .page[data-route='home'] .bullets { font-size: 1.125rem; }
+
+  /* Mobile cards and roles carry less: the one-liner, no tags. */
+  .card .card__tech,
+  .card .card__more { display: none; }
+  .card__blurb { margin-bottom: 0; }
+  .role__dates { display: none; }
 
   .headline .aside {
     display: block;
@@ -993,22 +1037,44 @@ body.phone-away .phone-tab {
   }
   .detail__screens img { border-radius: 12px; }
 
-  .topbar { top: 14px; }
+  .topbar { top: 16px; }
 
   /* The nav is the only navigation here, so it can never be put away. */
   .nav-toggle { display: none; }
   body.nav-away .pill { transform: none; }
 
-  /* Six text items wrap to two rows until the icon nav lands (PR 7). */
-  .pill { border-radius: 24px; }
-  .pill__list { flex-wrap: wrap; justify-content: center; gap: 2px; padding: 0; }
-  .pill__link { padding: 7px 12px; font-size: var(--fs-body); }
+  /* Icon pill (Mobile — 390): one icon per page; the current one expands to
+     show its label, so exactly one word is visible. The labels stay in the
+     markup for screen readers. */
+  .pill {
+    padding: 5px 6px;
+    background: color-mix(in srgb, var(--mint) 92%, transparent);
+  }
+  .pill__list { gap: 2px; padding: 0; }
+  .pill__link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 9px;
+    font-size: .8125rem;
+    line-height: 17px;
+  }
+  .pill__link[aria-current='page'] { padding: 7px 13px 7px 11px; }
+  /* 44px tap targets without changing what's drawn. */
+  .pill__link::after { content: ''; position: absolute; inset: -6px -1px; }
+  .pill__icon { display: block; width: 17px; height: 17px; }
+  .pill__icon svg { width: 100%; height: 100%; display: block; stroke-width: 2; }
+  .pill__link:not([aria-current='page']) .pill__label {
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .pill__marker { background: color-mix(in srgb, var(--tile-b) 65%, transparent); }
 
   .stamp { position: static; margin: 26px 0 0; padding-left: 22px; }
-}
-
-@media (max-width: 420px) {
-  .pill__link { padding: 6px 9px; }
 }
 
 /* Respect the system-level reduced-motion setting. */
