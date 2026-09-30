@@ -211,9 +211,9 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
   grid-template-columns: minmax(0, 1fr);
   align-items: center;
   padding: 100px clamp(24px, 6.25vw, 90px) 72px;
-  /* Reserves room for the phone; shrinks when it's put away. */
+  /* Reserves room for the phone. Kept when the phone is put away, so the
+     page never reflows under the reader. */
   padding-right: calc(480 * var(--art));  /* column ends at Figma's x960 */
-  transition: padding-right .5s var(--ease);
 }
 
 .content { min-width: 0; }
@@ -613,7 +613,6 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 /* Away state: slide right, leaving a sliver of the device on screen.
    The tilt on the way is added by app.js (phoneTilt). */
 body.phone-away .phone-area { translate: calc(100% - 18px) 0; }
-body.phone-away .stage { padding-right: clamp(24px, 6.25vw, 90px); }
 
 /* Everything except the device itself fades out while away. */
 body.phone-away .chev,

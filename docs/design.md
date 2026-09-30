@@ -144,8 +144,9 @@ lands. 400ms, ease-out. Putting it away and bringing it back tilt on the way
 and land straight — the Figma away frame has the sliver at 0°. Web Animations
 in `app.js` (`phoneEntrance`, `phoneTilt`); none under reduced motion.
 
-**Phone away.** Slides right leaving ~18px of the device; the content column
-widens. A `‹ phone` handle at the viewport edge brings it back, and clicking the
+**Phone away.** Slides right leaving ~18px of the device. The content column
+keeps its width and position, so nothing on the page moves or rewraps
+(widening it reflowed the text through the slide and read as a shake). A `‹ phone` handle at the viewport edge brings it back, and clicking the
 sliver works too. Escape sends it away.
 
 **Nav away.** Slides up past the top edge leaving a bare chevron. Desktop only —
