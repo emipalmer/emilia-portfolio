@@ -867,8 +867,10 @@
 
     syncTileFocus();
 
-    // Send focus to whichever control is now on screen.
-    if (moveFocus) (away ? els.tab : els.hide).focus();
+    // Send focus to whichever control is now on screen. The hide button is
+    // still off the edge mid-slide; without preventScroll the browser scrolls
+    // the whole page sideways to reach it, which shakes the content.
+    if (moveFocus) (away ? els.tab : els.hide).focus({ preventScroll: true });
   }
 
   /**
