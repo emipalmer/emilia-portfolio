@@ -172,6 +172,23 @@ button {
 }
 .pill__marker.is-ready { opacity: 1; }
 
+/* Quiet nav (desktop): the phone is the way around, so the pill recedes —
+   chrome faded hard, labels only to 70% (still 5:1) — and returns to full
+   strength on hover or keyboard focus. Mobile keeps it: it's the only nav. */
+@media (min-width: 901px) {
+  .pill, .pill__link, .pill__marker, .nav-toggle {
+    transition: border-color .3s var(--ease), background-color .3s var(--ease), color .3s var(--ease),
+                left .38s var(--ease), width .38s var(--ease), top .38s var(--ease), opacity .2s, transform .4s var(--ease);
+  }
+  .topbar:not(:hover):not(:focus-within) .pill {
+    border-color: color-mix(in srgb, var(--rule) 40%, transparent);
+    background-color: color-mix(in srgb, var(--mint) 40%, transparent);
+  }
+  .topbar:not(:hover):not(:focus-within) .pill__link { color: color-mix(in srgb, var(--forest) 70%, transparent); }
+  .topbar:not(:hover):not(:focus-within) .pill__marker { background: color-mix(in srgb, var(--tile-b) 35%, transparent); }
+  .topbar:not(:hover):not(:focus-within) .nav-toggle { color: color-mix(in srgb, var(--forest-soft) 70%, transparent); }
+}
+
 /* Bare chevron under the pill. Desktop only — see the 900px breakpoint. */
 .nav-toggle {
   pointer-events: auto;
