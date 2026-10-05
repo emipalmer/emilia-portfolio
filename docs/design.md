@@ -126,7 +126,7 @@ width, and ESDRS and ReVibe's phone screens sit in the column as a strip.
 The whole project card links to its detail page; "read more →" shares the tag
 row.
 
-**Skills** live at the end of the experience list — its own page was thin (12
+**Skills** open the experience list — its own page was thin (12
 chips, most already project tags), and recruiters read experience and skills
 together. They render as Figma's Chip: 16px, 9 × 18 padding, tile-b at 45% with
 a sage hairline; labels, not controls — no hover. The nav drops to five items.
@@ -148,6 +148,9 @@ in `app.js` (`phoneEntrance`, `phoneTilt`); none under reduced motion.
 keeps its width and position, so nothing on the page moves or rewraps
 (widening it reflowed the text through the slide and read as a shake). A `‹ phone` handle at the viewport edge brings it back, and clicking the
 sliver works too. Escape sends it away.
+When it comes back, focus moves to its button with `preventScroll`: the button
+is still off-screen mid-slide, and a plain `focus()` scrolls the page sideways
+to reveal it.
 
 **Quiet nav.** On desktop and laptop the pill sits back so the phone reads as
 the way around: at rest it is at 40% opacity and 88% size (shrinking from its
