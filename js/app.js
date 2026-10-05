@@ -563,8 +563,8 @@
         .to(paras, { fontSize: s.body }, at)
         .to([headline, ...paras], { opacity: s.text }, at)
         .fromTo(photos.filter(p => +p.dataset.step === n),
-          { opacity: 0, y: 36, scale: 0.94, rotation: (i, p) => +p.dataset.tilt },
-          { opacity: 1, y: 0, scale: 1, rotation: 0, stagger: 0.12, ease: 'power3.out' }, `${at}+=0.25`)
+          { opacity: 0, y: 36, scale: 0.94, rotation: (i, p) => +p.dataset.tilt * 2.5 },
+          { opacity: 1, y: 0, scale: 1, rotation: (i, p) => +p.dataset.tilt, stagger: 0.12, ease: 'power3.out' }, `${at}+=0.25`)
         .addLabel(`step${n}`);
     });
 
