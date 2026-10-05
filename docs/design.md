@@ -177,7 +177,9 @@ to screen readers.
 **About scroll.** Three steps, matching the `✓ about / 1–3` frames on Scroll
 reveal. It steps like the projects list — dots in the left margin, one wheel or
 trackpad gesture per step, arrow and page keys — and GSAP tweens between the
-steps, each photo settling from a slight tilt. Like home, the copy is centred
+steps. Each photo rests at the tilt of the slot it covers in the Figma "origin"
+frame (−6° to +6°; the two extras alternate against their neighbours), arriving
+more tilted and settling there, stacked in Figma's order. Like home, the copy is centred
 vertically on arrival and holds that top while it shrinks; the collage is
 centred on its own (y176–712 at 1440×860, against the frame's y187–723). Text starts oversized and scales down while a photo collage builds over
 the page; by the last step the collage owns the page and the text has faded out
