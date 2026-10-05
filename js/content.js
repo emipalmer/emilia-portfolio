@@ -29,17 +29,17 @@ const CONTENT = {
 
     home: {
       stamp: 'hi, i’m emilia',
-      title: { lead: 'Hi, I’m ', em: 'Emilia', tail: '.' },
+      title: { lead: 'hi, I’m ', em: 'Emilia', tail: '.' },
       docTitle: 'Emilia Palmer — Software Engineer',
       body: [
-        { type: 'list', items: ['Computer science @ Penn State', 'Software engineer, AI & full-stack'] },
+        { type: 'list', items: ['Computer Science @ Penn State', 'Software Development, AI & Full-Stack'] },
         { type: 'actions', items: [LINKS.resume, LINKS.github] }
       ]
     },
 
     about: {
       stamp: 'about',
-      title: { lead: 'Hi, I’m ', em: 'Emilia', tail: '.', aside: '(you can also call me Mia.)' },
+      title: { lead: 'hi, I’m ', em: 'Emilia', tail: '.', aside: '(you can also call me Mia.)' },
       docTitle: 'About',
       body: [
         { type: 'text', text: 'I’m a computer science student at Penn State, minoring in cybersecurity, math and entrepreneurship.' },
@@ -66,7 +66,7 @@ const CONTENT = {
 
     contact: {
       stamp: 'contact',
-      title: { lead: 'Say ', em: 'hi', tail: '!' },
+      title: { lead: 'Say ', em: 'Hi', tail: '!' },
       docTitle: 'Contact',
       body: [
         { type: 'contacts', items: [LINKS.email, LINKS.github, LINKS.linkedin] }

@@ -149,11 +149,12 @@ keeps its width and position, so nothing on the page moves or rewraps
 (widening it reflowed the text through the slide and read as a shake). A `‹ phone` handle at the viewport edge brings it back, and clicking the
 sliver works too. Escape sends it away.
 
-**Quiet nav.** On desktop the pill sits back so the phone reads as the way
-around: outline at 40%, background nearly clear, the current-page highlight at
-35%, labels at 70% (still 5:1, the floor for links). Hover or keyboard focus
-brings it to full strength. Mobile keeps it at full strength — it's the only
-navigation there.
+**Quiet nav.** On desktop and laptop the pill sits back so the phone reads as
+the way around: at rest it is at 40% opacity and 88% size (shrinking from its
+top edge). Pointing at it or tabbing into it brings it back at full size and
+strength. A deliberate trade: at rest its labels fall below 4.5:1, accepted
+because the phone always offers every page and keyboard focus always shows the
+nav in full. Mobile keeps the pill as is — it's the only navigation there.
 
 **Nav away.** Slides up past the top edge leaving a bare chevron. Desktop only —
 on mobile the nav is the only navigation and must not be dismissible.
