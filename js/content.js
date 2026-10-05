@@ -22,22 +22,25 @@ const CONTENT = {
      key    : matches the URL hash, e.g. #/about
      stamp  : the faded print("...") label bottom-left
      title  : the headline. `em` renders in italic.
+     docTitle: the browser tab / search result title
      body   : blocks. Types: 'list', 'text', 'links', 'cards'.
   ----------------------------------------------------------------------- */
   pages: {
 
     home: {
       stamp: 'hi, i’m emilia',
-      title: { lead: 'hi, i’m ', em: 'emilia', tail: '.' },
+      title: { lead: 'Hi, I’m ', em: 'Emilia', tail: '.' },
+      docTitle: 'Emilia Palmer — Software Engineer',
       body: [
-        { type: 'list', items: ['computer science @ penn state', 'aspiring developer'] },
+        { type: 'list', items: ['Computer science @ Penn State', 'Software engineer, AI & full-stack'] },
         { type: 'actions', items: [LINKS.resume, LINKS.github] }
       ]
     },
 
     about: {
       stamp: 'about',
-      title: { lead: 'hi, i’m ', em: 'emilia', tail: '.', aside: '(you can also call me mia.)' },
+      title: { lead: 'Hi, I’m ', em: 'Emilia', tail: '.', aside: '(you can also call me Mia.)' },
+      docTitle: 'About',
       body: [
         { type: 'text', text: 'I’m a computer science student at Penn State, minoring in cybersecurity, math and entrepreneurship.' },
         { type: 'text', text: 'This past summer I was an AI Engineer Intern at Venerable, building Python automation on AWS Bedrock for investment and compliance teams.' },
@@ -48,20 +51,23 @@ const CONTENT = {
 
     projects: {
       stamp: 'projects',
-      title: { lead: 'things i’ve ', em: 'built', tail: '.' },
+      title: { lead: 'Things I’ve ', em: 'built', tail: '.' },
+      docTitle: 'Projects',
       body: [{ type: 'cards', source: 'projects' }]
     },
 
     experience: {
       stamp: 'experience',
-      title: { lead: 'where i’ve ', em: 'worked', tail: '.' },
+      title: { lead: 'Where I’ve ', em: 'worked', tail: '.' },
+      docTitle: 'Experience',
       body: [{ type: 'roles' }]
     },
 
 
     contact: {
       stamp: 'contact',
-      title: { lead: 'say ', em: 'hi', tail: '!' },
+      title: { lead: 'Say ', em: 'hi', tail: '!' },
+      docTitle: 'Contact',
       body: [
         { type: 'links', items: [LINKS.email, LINKS.github, LINKS.linkedin] }
       ]
@@ -71,7 +77,8 @@ const CONTENT = {
   // Any hash that isn't a page or a project. Not a route of its own.
   notFound: {
     stamp: '404',
-    title: { lead: 'hmm, ', em: 'nothing', tail: ' here.' },
+    title: { lead: 'Hmm, ', em: 'nothing', tail: ' here.' },
+    docTitle: 'Page not found',
     body: [
       { type: 'text', text: 'That page doesn\u2019t exist \u2014 the link may be old, or I may have moved it.' },
       { type: 'links', items: [{ label: 'home', href: '#/home' }, { label: 'projects', href: '#/projects' }] }

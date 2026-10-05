@@ -225,7 +225,7 @@
     if (route.project) {
       renderDetail(route.project);
       stamp = 'projects';
-      title = route.project.name;
+      title = `${route.project.name} — Emilia Palmer`;
     } else {
       const page = route.key ? CONTENT.pages[route.key] : CONTENT.notFound;
       els.page.append(renderHeadline(page.title));
@@ -235,7 +235,9 @@
         if (node) prose.append(node);
       });
       els.page.append(prose);
-      stamp = title = page.stamp;
+      stamp = page.stamp;
+      // Home's tab title stands alone; the rest read "About — Emilia Palmer".
+      title = route.key === 'home' ? page.docTitle : `${page.docTitle} — Emilia Palmer`;
     }
 
     els.page.classList.toggle('page--paged', Boolean(els.page.querySelector('.pager')));
@@ -246,7 +248,7 @@
     setupSteps();
 
     els.stamp.textContent = `print(\u201C${stamp}\u201D)`;
-    document.title = `${title} — emilia`;
+    document.title = title;
 
     // Restart the entrance animation on every change.
     els.page.classList.remove('is-entering');
