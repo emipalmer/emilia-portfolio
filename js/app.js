@@ -630,13 +630,14 @@
     });
 
     if (active) {
-      // The marker is positioned inside the pill's border, so measure from there.
-      const pill = els.nav.getBoundingClientRect();
-      const box = active.getBoundingClientRect();
-      els.marker.style.left = `${box.left - pill.left - els.nav.clientLeft}px`;
-      els.marker.style.width = `${box.width}px`;
-      els.marker.style.top = `${box.top - pill.top - els.nav.clientTop}px`;
-      els.marker.style.height = `${box.height}px`;
+      // Layout offsets, not screen boxes: the pill is scaled down at rest on
+      // desktop, and screen measurements would shrink with it. The link sits
+      // in the list, which sits in the pill — the marker's positioning box.
+      const list = active.offsetParent;
+      els.marker.style.left = `${list.offsetLeft + active.offsetLeft}px`;
+      els.marker.style.width = `${active.offsetWidth}px`;
+      els.marker.style.top = `${list.offsetTop + active.offsetTop}px`;
+      els.marker.style.height = `${active.offsetHeight}px`;
       els.marker.classList.add('is-ready');
     } else {
       els.marker.classList.remove('is-ready');

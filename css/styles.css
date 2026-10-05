@@ -172,21 +172,19 @@ button {
 }
 .pill__marker.is-ready { opacity: 1; }
 
-/* Quiet nav (desktop): the phone is the way around, so the pill recedes —
-   chrome faded hard, labels only to 70% (still 5:1) — and returns to full
-   strength on hover or keyboard focus. Mobile keeps it: it's the only nav. */
+/* Quiet nav (desktop): the phone is the way around, so at rest the pill is
+   faded and a little smaller; pointing at it or tabbing into it brings it
+   back at full size and strength. This is a deliberate trade: at rest the
+   labels fall below 4.5:1, but they are never the only way around (the phone
+   is), and keyboard focus always shows them in full. Mobile keeps the pill as
+   is — it's the only navigation there. `scale` stacks with the nav-away slide. */
 @media (min-width: 901px) {
-  .pill, .pill__link, .pill__marker, .nav-toggle {
-    transition: border-color .3s var(--ease), background-color .3s var(--ease), color .3s var(--ease),
-                left .38s var(--ease), width .38s var(--ease), top .38s var(--ease), opacity .2s, transform .4s var(--ease);
+  .pill, .nav-toggle {
+    transition: opacity .3s var(--ease), scale .3s var(--ease), transform .4s var(--ease), background .2s var(--ease);
   }
-  .topbar:not(:hover):not(:focus-within) .pill {
-    border-color: color-mix(in srgb, var(--rule) 40%, transparent);
-    background-color: color-mix(in srgb, var(--mint) 40%, transparent);
-  }
-  .topbar:not(:hover):not(:focus-within) .pill__link { color: color-mix(in srgb, var(--forest) 70%, transparent); }
-  .topbar:not(:hover):not(:focus-within) .pill__marker { background: color-mix(in srgb, var(--tile-b) 35%, transparent); }
-  .topbar:not(:hover):not(:focus-within) .nav-toggle { color: color-mix(in srgb, var(--forest-soft) 70%, transparent); }
+  .pill { transform-origin: 50% 0; }
+  .topbar:not(:hover):not(:focus-within) .pill { opacity: .4; scale: .88; }
+  .topbar:not(:hover):not(:focus-within) .nav-toggle { opacity: .4; }
 }
 
 /* Bare chevron under the pill. Desktop only — see the 900px breakpoint. */
