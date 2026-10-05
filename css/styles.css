@@ -454,7 +454,7 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
   font-size: .8125rem;
   font-weight: 400;
   font-style: italic;
-  color: color-mix(in srgb, var(--forest-soft) 70%, transparent);
+  color: color-mix(in srgb, var(--forest-soft) 80%, transparent);  /* 5.1:1; Figma's 70% is 3.9 */
 }
 .role {
   padding: 10px 0;
@@ -472,7 +472,7 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
   margin: 0;
   font-size: .8125rem;
   font-style: italic;
-  color: color-mix(in srgb, var(--forest-soft) 75%, transparent);
+  color: color-mix(in srgb, var(--forest-soft) 80%, transparent);  /* 5.1:1; Figma's 75% is 4.49 */
   white-space: nowrap;
 }
 .role__org { margin: 4px 0 0; font-size: .875rem; font-weight: 500; color: var(--forest-soft); }
@@ -506,7 +506,7 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
   margin-bottom: 10px;
   font-size: .875rem;
   font-style: italic;
-  color: var(--rule);
+  color: var(--forest-soft);  /* rule green is 3.7:1 at this size */
   text-decoration: none;
 }
 .detail__back:hover { text-decoration: underline; }
@@ -1002,6 +1002,9 @@ body.phone-away .phone-tab {
   pointer-events: none;
   user-select: none;
 }
+/* A watermark, not text: WCAG exempts pure decoration from contrast, and
+   drawing it from an attribute keeps it out of the page's text. */
+.stamp::before { content: attr(data-text); }
 
 /* --- 7. Responsive ------------------------------------------------------- */
 

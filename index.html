@@ -73,7 +73,7 @@
     <!-- ================= Phone navigator =================
          The primary way to move around the site on desktop.
          Hidden on small screens, where the pill nav takes over. -->
-    <div class="phone-area" id="phoneArea">
+    <aside class="phone-area" id="phoneArea" aria-label="Phone navigator">
       <!-- Slides the phone off the right edge; the content column stays put. -->
       <button class="phone-hide" type="button" id="phoneHide"
               aria-controls="phoneArea" aria-expanded="true">
@@ -115,7 +115,7 @@
           <path d="M27 10.9 32 6l1.7 6.8" />
         </svg>
       </p>
-    </div>
+    </aside>
   </div>
 
   <!-- Handle pinned to the right edge; only reachable while the phone is away. -->
@@ -126,6 +126,7 @@
   </button>
 
   <!-- Page label, bottom-left. Mirrors the mockup's print("...") motif. -->
+  <!-- Decoration: drawn from data-text by CSS, so it is not page text. -->
   <p class="stamp" id="stamp" aria-hidden="true"></p>
 
   <!-- Vendored, no build step: card motion and scroll-linked reveals. -->

@@ -115,7 +115,7 @@ bottom (redrawn on top of the image) returns the phone to its home screens. The
 page column stays on the detail either way; `← projects` is the page's exit. The
 other four detail pages leave the phone alone.
 
-An unknown hash gets a 404 page (`hmm, nothing here.` plus two ways back), not a
+An unknown hash gets a 404 page (`Hmm, nothing here.` plus two ways back), not a
 silent fallback to home. A silent fallback reads as the link being broken.
 
 **Detail pages** follow the Projects — detail frames: `← projects`, title, meta
@@ -308,7 +308,26 @@ link, not just the title.
 
 ---
 
+**Accessibility checks** (axe-core, every page at 1440 and 390: no violations).
+Small secondary text is held to 4.5:1: role dates and group labels use
+forest-soft at 80% (Figma's 70–75% fell just short) and `← projects` uses
+forest-soft (rule green is 3.7:1). The `print()` stamp is pure decoration,
+exempt from contrast, and is drawn from a `data-text` attribute so it isn't
+page text. The phone is an `<aside>` landmark. Focus moves to the new page
+after navigating — but not on first load, so the first Tab reaches the skip
+link and the nav.
+
 ## 9. Content
+
+**Voice.** Headlines and home lines are sentence case ("Hi, I'm Emilia.",
+"Things I've built."); the nav, tile labels and `print()` stamps stay lowercase
+as a style accent. Home's second line is "Software engineer, AI & full-stack".
+Tab titles read "Emilia Palmer — Software Engineer" on home and
+"About — Emilia Palmer" elsewhere.
+
+**Share preview** is `assets/share.png` (1200×630, in the site's style); the
+Open Graph tags point at it by absolute URL, so update them if the domain
+changes. The favicon is a phone app tile with an italic e.
 
 Six projects: esdrs, Dementia Care MR Simulation, ReVibe, Gemini AI Document
 Add-On, WorkLog, This site. **esdrs is always lowercase** in copy. Roles are
