@@ -51,7 +51,7 @@ assets/             resume.pdf; photos/ holds the site photos
   carries every destination. Everything between 390 and 1440 is the same layout
   squeezed — see the clamp rules in `docs/design.md`.
 - **Every page is in the nav as well as on the phone**, because the phone can be
-  dismissed. Five items: skills lives at the end of experience.
+  dismissed. Five items: skills open the experience page.
 - **About's scroll changes emphasis, never content.** Every word is in the markup
   at first paint. That is what makes it safe with JS off and under
   `prefers-reduced-motion`.

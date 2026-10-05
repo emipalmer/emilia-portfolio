@@ -159,9 +159,16 @@
         return collage(CONTENT.photos.collage);
 
       case 'roles': {
-        // One flat list, each group's label riding on its first role, so it
-        // pages like the project cards when a screen is too short for all five.
+        // One flat list — skills, then each group's roles with the group label
+        // riding on its first role — so it pages like the project cards.
         const ul = el('ul', { className: 'roles' });
+        // Skills open the list as one more item, so they page with the roles.
+        const skills = el('li', { className: 'role role--skills' });
+        skills.append(el('h2', { className: 'roles__label', text: 'skills' }));
+        CONTENT.skills.forEach(group => {
+          skills.append(renderBlock({ type: 'chips', label: `${group.label}:`, items: group.items }));
+        });
+        ul.append(skills);
         CONTENT.experience.forEach(group => {
           group.roles.forEach((role, i) => {
             const li = el('li', { className: 'role' });
@@ -175,13 +182,6 @@
             ul.append(li);
           });
         });
-        // Skills close the list as one more item, so they page with the roles.
-        const skills = el('li', { className: 'role role--skills' });
-        skills.append(el('h2', { className: 'roles__label', text: 'skills' }));
-        CONTENT.skills.forEach(group => {
-          skills.append(renderBlock({ type: 'chips', label: `${group.label}:`, items: group.items }));
-        });
-        ul.append(skills);
         return pagedList(ul, 'experience');
       }
 
@@ -882,8 +882,11 @@
 
     syncTileFocus();
 
-    // Send focus to whichever control is now on screen.
-    if (moveFocus) (away ? els.tab : els.hide).focus();
+    // Send focus to whichever control is now on screen. preventScroll: when
+    // the phone comes back its button is still off-screen mid-slide, and a
+    // plain focus() scrolls the whole page sideways to reveal it (a ~300px
+    // jolt that eases back — the "shake").
+    if (moveFocus) (away ? els.tab : els.hide).focus({ preventScroll: true });
   }
 
   /**

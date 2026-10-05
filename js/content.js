@@ -29,7 +29,7 @@ const CONTENT = {
 
     home: {
       stamp: 'hi, i’m emilia',
-      title: { lead: 'hi, I’m ', em: 'Emilia', tail: '.' },
+      title: { lead: 'Hi, I’m ', em: 'Emilia', tail: '.' },
       docTitle: 'Emilia Palmer — Software Engineer',
       body: [
         { type: 'list', items: ['Computer Science @ Penn State', 'Software Development, AI & Full-Stack'] },
@@ -39,7 +39,7 @@ const CONTENT = {
 
     about: {
       stamp: 'about',
-      title: { lead: 'hi, I’m ', em: 'Emilia', tail: '.', aside: '(you can also call me Mia.)' },
+      title: { lead: 'Hi, I’m ', em: 'Emilia', tail: '.', aside: '(you can also call me Mia.)' },
       docTitle: 'About',
       body: [
         { type: 'text', text: 'I’m a computer science student at Penn State, minoring in cybersecurity, math and entrepreneurship.' },
@@ -58,7 +58,7 @@ const CONTENT = {
 
     experience: {
       stamp: 'experience',
-      title: { lead: 'Where I’ve ', em: 'worked', tail: '.' },
+      title: { lead: 'My ', em: 'experience', tail: '.' },
       docTitle: 'Experience',
       body: [{ type: 'roles' }]
     },
@@ -66,7 +66,7 @@ const CONTENT = {
 
     contact: {
       stamp: 'contact',
-      title: { lead: 'Say ', em: 'Hi', tail: '!' },
+      title: { lead: 'Say ', em: 'hi', tail: '!' },
       docTitle: 'Contact',
       body: [
         { type: 'contacts', items: [LINKS.email, LINKS.github, LINKS.linkedin] }
