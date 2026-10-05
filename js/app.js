@@ -259,7 +259,7 @@
     els.page.classList.toggle('page--detail', Boolean(route.project));
     setupSteps();
 
-    els.stamp.textContent = `print(\u201C${stamp}\u201D)`;
+    els.stamp.dataset.text = `print(\u201C${stamp}\u201D)`;
     document.title = title;
 
     // Restart the entrance animation on every change.
@@ -405,7 +405,8 @@
   /** `perPage` caps a page; fewer show when the screen is too short for the cap. */
   function pagedList(list, label, perPage = Infinity) {
     const pager = el('div', { className: 'pager', attrs: { role: 'region', 'aria-label': label, 'data-per-page': perPage } });
-    const viewport = el('div', { className: 'pager__viewport', attrs: { tabindex: '0' } });
+    // Not a tab stop: the cards are links, and the keys work anywhere on the page.
+    const viewport = el('div', { className: 'pager__viewport' });
     viewport.append(list);
     pager.append(viewport, stepDots(`${label} pages`));
     return pager;
@@ -420,7 +421,6 @@
 
     // Below the breakpoint the document scrolls and every card shows.
     if (!desktop.matches) {
-      viewport.tabIndex = -1;
       if (animate) cleanups.push(revealOnScroll(cards));
       return;
     }
@@ -904,7 +904,8 @@
     if (route.path === currentPath) return;
 
     // Every page change after the first moves the photo card on.
-    if (currentPath) { showPhoto(photoIndex + 1); startPhotoTimer(); }
+    const firstLoad = !currentPath;
+    if (!firstLoad) { showPhoto(photoIndex + 1); startPhotoTimer(); }
     currentPath = route.path;
     currentRoute = route.key || '';
 
@@ -913,9 +914,10 @@
     if (route.project && route.project.screens) openDemo(route.project);
     else closeDemo();
 
-    // Move focus to the new content so keyboard and screen-reader users
-    // land in the right place after navigating.
-    els.page.focus({ preventScroll: true });
+    // After navigating, move focus to the new content so keyboard and
+    // screen-reader users land in the right place. Not on first load: there
+    // the first Tab should reach the skip link and nav, as on any page.
+    if (!firstLoad) els.page.focus({ preventScroll: true });
   }
 
   /** Give each nav link its tile icon; below 900px only the current one keeps its label. */
