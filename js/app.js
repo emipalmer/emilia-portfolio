@@ -198,6 +198,18 @@
         return ul;
       }
 
+      // Contact details as large readable rows: label, then the address as the link.
+      case 'contacts': {
+        const ul = el('ul', { className: 'contacts' });
+        block.items.forEach(link => {
+          const li = el('li', { className: 'contact' });
+          li.append(el('span', { className: 'contact__label', text: link.label }),
+            el('a', { className: 'contact__value', text: link.display, attrs: linkAttrs(link.href) }));
+          ul.append(li);
+        });
+        return ul;
+      }
+
       case 'links': {
         const ul = el('ul', { className: 'linklist' });
         block.items.forEach(link => {

@@ -69,7 +69,7 @@ const CONTENT = {
       title: { lead: 'Say ', em: 'hi', tail: '!' },
       docTitle: 'Contact',
       body: [
-        { type: 'links', items: [LINKS.email, LINKS.github, LINKS.linkedin] }
+        { type: 'contacts', items: [LINKS.email, LINKS.github, LINKS.linkedin] }
       ]
     }
   },
