@@ -549,19 +549,29 @@
     const rail = wrap.querySelector('.step-dots');
     const headline = els.page.querySelector('.headline');
     const aside = headline.querySelector('.aside');
-    const paras = Array.from(els.page.querySelectorAll('.prose > p'));
-    // The hero headline clamps below 84 on narrower screens; keep its ratios.
-    const scale = parseFloat(getComputedStyle(headline).fontSize) / ABOUT_STEPS[0].headline;
+    const prose = els.page.querySelector('.prose');
+    const [arrival] = ABOUT_STEPS;
+
+    // Decode every photo now, so none is still decoding when it slides in.
+    photos.forEach(img => { img.loading = 'eager'; if (img.decode) img.decode().catch(() => {}); });
+
+    // The copy shrinks with transforms, not font-size: no layout or re-wrapping
+    // per frame, and the copy keeps its centred top with nothing to hold it.
+    // Sizes are ratios of the arrival state, so the clamped hero still scales.
+    // The copy follows the headline up as it shrinks.
+    gsap.set([headline, prose], { transformOrigin: '0 0' });
+    gsap.set(aside, { transformOrigin: '0 100%' });
+    const lift = ratio => -headline.offsetHeight * (1 - ratio);
 
     const tl = gsap.timeline({ paused: true, defaults: { duration: 1, ease: 'power2.inOut' } });
     tl.addLabel('step0');
     [1, 2].forEach(n => {
       const s = ABOUT_STEPS[n];
       const at = `step${n - 1}`;
-      tl.to(headline, { fontSize: s.headline * scale }, at)
-        .to(aside, { fontSize: s.aside }, at)
-        .to(paras, { fontSize: s.body }, at)
-        .to([headline, ...paras], { opacity: s.text }, at)
+      const h = s.headline / arrival.headline;
+      tl.to(headline, { scale: h, opacity: s.text }, at)
+        .to(aside, { scale: (s.aside / arrival.aside) / h }, at)  // its own size, not the headline's
+        .to(prose, { scale: s.body / arrival.body, y: lift(h), opacity: s.text }, at)
         .fromTo(photos.filter(p => +p.dataset.step === n),
           { opacity: 0, y: 36, scale: 0.94, rotation: (i, p) => +p.dataset.tilt * 2.5 },
           { opacity: 1, y: 0, scale: 1, rotation: (i, p) => +p.dataset.tilt, stagger: 0.12, ease: 'power3.out' }, `${at}+=0.25`)
@@ -573,30 +583,18 @@
       if (to < 0 || to >= ABOUT_STEPS.length || to === current) return;
       current = to;
       markDot(rail, current);
-      if (animate) tl.tweenTo(`step${to}`, { duration: 0.9, ease: 'power1.inOut' });
+      // Play the timeline at an even pace so each piece keeps its own easing;
+      // a second ease on top made the steps lurch.
+      if (animate) tl.tweenTo(`step${to}`, { duration: Math.abs(tl.labels[`step${to}`] - tl.time()) * 0.85, ease: 'none' });
       else tl.seek(`step${to}`);
     }
-
-    // The copy centres on arrival; hold that top while it shrinks so it doesn't drift.
-    function holdTop() {
-      if (current !== 0) return;
-      els.page.style.gridTemplateRows = '';
-      const top = headline.getBoundingClientRect().top - els.page.getBoundingClientRect().top
-        - parseFloat(getComputedStyle(els.page).paddingTop);
-      els.page.style.gridTemplateRows = `${top}px auto auto 1fr`;
-    }
-    holdTop();
-    window.addEventListener('resize', holdTop);
-    if (document.fonts) document.fonts.ready.then(holdTop);
 
     renderDots(rail, ['About: arrival', 'About: collage arrives', 'About: collage'], go);
     markDot(rail, current);
     cleanups.push(bindStepInput(d => go(current + d), go, () => ABOUT_STEPS.length));
     cleanups.push(() => {
-      window.removeEventListener('resize', holdTop);
-      els.page.style.gridTemplateRows = '';
       tl.kill();
-      gsap.set([headline, aside, ...paras, ...photos], { clearProps: 'all' });
+      gsap.set([headline, aside, prose, ...photos], { clearProps: 'all' });
     });
   }
 
