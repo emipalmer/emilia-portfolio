@@ -180,7 +180,7 @@ trackpad gesture per step, arrow and page keys — and GSAP tweens between the
 steps. Each photo rests at the tilt of the slot it covers in the Figma "origin"
 frame (−6° to +6°; the two extras alternate against their neighbours), arriving
 more tilted and settling there, stacked in Figma's order with the dressed-up
-photo on top. The copy shrinks by transform (scale, with the copy lifted to
+photo on top and the four-sitting (venerable) photo just under it. The copy shrinks by transform (scale, with the copy lifted to
 follow the headline), never by font-size: animating font-size re-laid out the
 page every frame and re-wrapped lines mid-step. Each piece keeps its own easing
 and the step plays the timeline at an even pace; photos are decoded on arrival
