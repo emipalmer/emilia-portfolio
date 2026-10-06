@@ -179,7 +179,12 @@ reveal. It steps like the projects list — dots in the left margin, one wheel o
 trackpad gesture per step, arrow and page keys — and GSAP tweens between the
 steps. Each photo rests at the tilt of the slot it covers in the Figma "origin"
 frame (−6° to +6°; the two extras alternate against their neighbours), arriving
-more tilted and settling there, stacked in Figma's order. Like home, the copy is centred
+more tilted and settling there, stacked in Figma's order with the dressed-up
+photo on top. The copy shrinks by transform (scale, with the copy lifted to
+follow the headline), never by font-size: animating font-size re-laid out the
+page every frame and re-wrapped lines mid-step. Each piece keeps its own easing
+and the step plays the timeline at an even pace; photos are decoded on arrival
+so none is still loading when it slides in. Like home, the copy is centred
 vertically on arrival and holds that top while it shrinks; the collage is
 centred on its own (y176–712 at 1440×860, against the frame's y187–723). Text starts oversized and scales down while a photo collage builds over
 the page; by the last step the collage owns the page and the text has faded out

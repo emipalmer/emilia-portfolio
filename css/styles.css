@@ -303,6 +303,10 @@ body.nav-away .nav-toggle .chevron { transform: rotate(90deg); }
 .page--collage > .headline { grid-area: 2 / 1; }
 .page--collage > .prose { grid-area: 3 / 1; }
 .page--collage > .collage { grid-area: 1 / 1 / 5 / 2; align-self: center; }
+/* Animated by transform and opacity only, on their own layers. */
+.page--collage .headline,
+.page--collage .prose,
+.collage__photo { will-change: transform, opacity; }
 .page--collage .prose { max-width: 701px; }
 .page--collage .prose > p { font-size: var(--fs-lead); }
 
