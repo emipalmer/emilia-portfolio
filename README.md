@@ -1,8 +1,6 @@
 # emilia — portfolio
 
-Emilia (Mia) Palmer's portfolio. A static site — plain HTML, CSS and JavaScript,
-no framework, no build step. GSAP, vendored, handles the card motion. On desktop, a phone drawn beside every page is the
-navigation: its app tiles are the site's pages.
+Emilia Palmer's portfolio. I used plain HTML, CSS and JavaScript!
 
 - **Design (visual spec):** [Figma](https://www.figma.com/design/ahL2NEw9Qre9N7wcH8Ng3o) — start at *Handoff — read me first*
 - **Decisions and behaviour:** [docs/design.md](docs/design.md)
@@ -52,5 +50,4 @@ the files as they are.
 
 ## Status
 
-Being built in small PRs, one concern each — the sequence is in
-[docs/design.md §10](docs/design.md#10-pr-sequence).
+Still being built!
